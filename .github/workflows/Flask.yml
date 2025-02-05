@@ -21,6 +21,9 @@ jobs:
       run: |
         pip install -r requirements.txt
 
+    - name: Check environment variables
+      run: env
+
     - name: Deploy to PythonAnywhere
       run: |
         # Create the .ssh directory if it doesn't exist
