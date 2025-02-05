@@ -23,8 +23,7 @@ jobs:
 
     - name: Deploy to PythonAnywhere
       run: |
-        # Create the .ssh directory and add the private key for authentication
-        mkdir -p ~/.ssh
+        # Add the private key for authentication to the existing .ssh directory
         echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa  # Set the correct permissions for the private key
 
@@ -36,5 +35,6 @@ jobs:
 
         # SSH into PythonAnywhere, activate the virtual environment, and run the app
         ssh MaudGes@pythonanywhere.com 'source /home/MaudGes/envp7/bin/activate && python /home/MaudGes/app.py'
+
 
 
