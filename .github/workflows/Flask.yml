@@ -41,13 +41,16 @@ jobs:
         chmod 600 ~/.ssh/id_rsa  # Set the correct permissions for the private key
 
         # Ensure the host key is added to known_hosts to avoid the host verification error
-        ssh-keyscan pythonanywhere.com >> ~/.ssh/known_hosts
+        ssh-keyscan ssh.pythonanywhere.com >> ~/.ssh/known_hosts
+        echo 'After ssh-keyscan'
 
         # Copy the app.py file to the specified directory on PythonAnywhere
-        scp -r ./app.py MaudGes@pythonanywhere.com:/home/MaudGes/
+        scp -r ./* MaudGes@ssh.pythonanywhere.com:/home/MaudGes/
+        echo 'After scp'
 
         # SSH into PythonAnywhere, activate the virtual environment, and run the app
-        ssh MaudGes@pythonanywhere.com 'source /home/MaudGes/envp7/bin/activate && python /home/MaudGes/app.py'
+        ssh MaudGes@ssh.pythonanywhere.com 'source /home/MaudGes/envp7/bin/activate && python /home/MaudGes/app.py'
+        echo 'After ssh'
 
 
 
