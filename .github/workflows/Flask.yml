@@ -22,9 +22,13 @@ jobs:
         pip install -r requirements.txt
 
     - name: Check environment variables
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       run: env
 
     - name: Deploy to PythonAnywhere
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       run: |
         # Create the .ssh directory if it doesn't exist
         mkdir -p ~/.ssh
