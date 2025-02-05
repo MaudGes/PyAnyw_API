@@ -28,7 +28,9 @@ jobs:
 
         # Add the private key for authentication
         echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        echo 'We made it here'
         tail ~/.ssh/id_rsa
+        echo 'After tail'
         chmod 600 ~/.ssh/id_rsa  # Set the correct permissions for the private key
 
         # Ensure the host key is added to known_hosts to avoid the host verification error
