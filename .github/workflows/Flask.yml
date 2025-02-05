@@ -1,0 +1,30 @@
+name: Deploy to PythonAnywhere
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10.5'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Deploy to PythonAnywhere
+      run: |
+        # Copy the app.py file directly to your home directory (or desired directory)
+        scp -r ./app.py MaudGes@pythonanywhere.com:/home/MaudGes/
+
+        # SSH into PythonAnywhere and activate the virtual environment before running the app
+        ssh MaudGes@pythonanywhere.com 'source /home/MaudGes/envp7/bin/activate && python /home/MaudGes/app.py'
