@@ -24,7 +24,8 @@ jobs:
     - name: Deploy to PythonAnywhere
       run: |
         # Copy the app.py file directly to your home directory (or desired directory)
-        scp -r ./app.py MaudGes@pythonanywhere.com:/home/MaudGes/
+        scp -o StrictHostKeyChecking=no -r ./app.py MaudGes@pythonanywhere.com:/home/MaudGes/
 
         # SSH into PythonAnywhere and activate the virtual environment before running the app
-        ssh MaudGes@pythonanywhere.com 'source /home/MaudGes/envp7/bin/activate && python /home/MaudGes/app.py'
+        ssh -o StrictHostKeyChecking=no MaudGes@pythonanywhere.com 'source /home/MaudGes/envp7/bin/activate && python /home/MaudGes/app.py'
+
