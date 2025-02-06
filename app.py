@@ -7,6 +7,11 @@ app = Flask(__name__)
 # Load the MLflow model
 model = mlflow.sklearn.load_model("/home/MaudGes/mysite/mlflow_model")
 
+# Add a home route
+@app.route('/')
+def home():
+    return "Welcome to the ML API! Use the /predict endpoint to make predictions."
+
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.get_json()
