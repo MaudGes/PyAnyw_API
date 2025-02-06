@@ -57,7 +57,7 @@ def home():
             print(f"✅ Pipeline loaded: {type(pipeline)}")
 
             print("🟢 Predicting...")
-            prediction = pipeline.predict(input_df)[0]  # Extract first value
+            prediction = pipeline.predict(input_df)  # Extract first value
 
             # Debugging - Log prediction
             print("✅ Prediction:", prediction)
