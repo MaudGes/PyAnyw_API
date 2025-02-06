@@ -17,6 +17,7 @@ FEATURE_NAMES = [
 ]
 
 def clean_input(value):
+    """Remove unwanted characters from input data (e.g., newlines, extra spaces)."""
     return str(value).replace("\n", "").replace("\r", "").strip()  # Remove newlines and extra spaces
 
 @app.route('/', methods=['GET', 'POST'])
@@ -44,8 +45,9 @@ def home():
                 'FLAG_EMP_PHONE': [1]
             })
 
-            # Debugging - Check the DataFrame that will be passed to the model
-            print("✅ Input DataFrame:")
+            # Clean input data
+            input_df = input_df.applymap(clean_input)
+            print("✅ Cleaned Input DataFrame:")
             print(input_df)
 
             # Check if pipeline is loaded
@@ -56,8 +58,17 @@ def home():
             # Check the type and ensure that model is correctly loaded
             print(f"✅ Pipeline loaded: {type(pipeline)}")
 
+            # Check the input features to ensure they match
+            print("✅ Input DataFrame Columns:", input_df.columns)
+            print("✅ Expected Feature Names:", FEATURE_NAMES)
+
+            # Ensure the DataFrame has the correct columns (order might not matter, but names should)
+            if sorted(input_df.columns) != sorted(FEATURE_NAMES):
+                print("❌ ERROR: Input DataFrame columns do not match the expected feature names.")
+                return render_template('index.html', error="Input DataFrame columns do not match the expected feature names.")
+
             print("🟢 Predicting...")
-            prediction = pipeline.predict(input_df)  # Extract first value
+            prediction = pipeline.predict(input_df)[0]  # Extract first value
 
             # Debugging - Log prediction
             print("✅ Prediction:", prediction)
