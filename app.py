@@ -19,7 +19,7 @@ FEATURE_NAMES = [
 @app.route('/', methods=['GET', 'POST'])
 def home():
     prediction = None  # Default value
-    
+
     if request.method == 'POST':
         try:
             # Retrieve form data
@@ -41,18 +41,35 @@ def home():
             input_df = pd.DataFrame([input_data], columns=FEATURE_NAMES)
 
             # Debugging: Print input data
-            print("Input Data:", input_df)
+            print("✅ Received Data:", input_df)
+            import sys
+            sys.stdout.flush()  # Ensure logs are immediately written
 
-            # Perform prediction
-            prediction = model.predict(input_df)[0]
+            # Check if model exists
+            if model is None:
+                print("❌ ERROR: Model is None!")
+                sys.stdout.flush()
+                return render_template('index.html', error="Model is None.")
+
+            # Check if input is valid before prediction
+            print("🟢 Predicting...")
+            sys.stdout.flush()
+            
+            prediction = model.predict(input_df)[0]  # Ensure this executes
 
             # Debugging: Print prediction
-            print("Prediction:", prediction)
+            print("✅ Prediction:", prediction)
+            sys.stdout.flush()
 
         except Exception as e:
-            return render_template('index.html', error=str(e))  
+            print(f"❌ Exception Occurred: {e}")
+            sys.stdout.flush()
+            return render_template('index.html', error=str(e))
 
+    print("🚀 Sending to template:", prediction)  # Debugging
+    sys.stdout.flush()
     return render_template('index.html', prediction=prediction)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
