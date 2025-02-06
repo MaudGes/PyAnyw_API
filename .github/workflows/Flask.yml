@@ -45,11 +45,11 @@ jobs:
         echo 'After ssh-keyscan'
 
         # Copy the app.py file to the specified directory on PythonAnywhere
-        scp -r ./* MaudGes@ssh.pythonanywhere.com:/home/MaudGes/
+        scp -r ./* MaudGes@ssh.pythonanywhere.com:/home/MaudGes/mysite/
         echo 'After scp'
 
         # SSH into PythonAnywhere, activate the virtual environment, and run the app
-        ssh MaudGes@ssh.pythonanywhere.com 'source /home/MaudGes/envp7/bin/activate && python /home/MaudGes/app.py'
+        ssh MaudGes@ssh.pythonanywhere.com 'source /home/MaudGes/mysite/envp7/bin/activate && python /home/MaudGes/mysite/app.py'
         echo 'After ssh'
 
 
