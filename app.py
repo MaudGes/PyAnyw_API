@@ -22,7 +22,7 @@ def home():
 
     if request.method == 'POST':
         try:
-            # Retrieve form data and convert booleans to 1 or 0
+            # Step 1: Retrieve form data and convert booleans to 1 or 0
             input_data = [
                 float(request.form['EXT_SOURCE_3']),
                 float(request.form['EXT_SOURCE_2']),
@@ -40,28 +40,33 @@ def home():
             # Convert input to DataFrame with feature names
             input_df = pd.DataFrame([input_data], columns=FEATURE_NAMES)
 
-            # Debugging: Print input data
+            # Step 2: Debugging - Print input data
             print("✅ Received Data:", input_df)
 
-            # Check if pipeline exists
+            # Step 3: Model Loading Verification
             if pipeline is None:
                 print("❌ ERROR: Pipeline is None!")
                 return render_template('index.html', error="Pipeline is None.")
+            else:
+                print(f"✅ Pipeline loaded successfully: {type(pipeline)}")
 
-            # Check if input is valid before prediction
+            # Step 4: Check if input is valid before prediction
             print("🟢 Predicting...")
 
-            # Make prediction using the pipeline
+            # Step 5: Make prediction using the pipeline
             prediction = pipeline.predict(input_df)[0]  # Ensure this executes
 
-            # Debugging: Print prediction
+            # Step 6: Debugging - Print prediction
             print("✅ Prediction:", prediction)
 
         except Exception as e:
+            # Step 7: Exception Handling and Error Logs
             print(f"❌ Exception Occurred: {e}")
             return render_template('index.html', error=str(e))
 
+    # Debugging: Log sending to template
     print("🚀 Sending to template:", prediction)  # Debugging
+
     return render_template('index.html', prediction=prediction)
 
 
