@@ -16,6 +16,9 @@ FEATURE_NAMES = [
     "EXT_SOURCE_1", "NAME_INCOME_TYPE_Working", "FLAG_EMP_PHONE"
 ]
 
+def clean_input(value):
+    return str(value).replace("\n", "").replace("\r", "").strip()  # Remove newlines and extra spaces
+
 @app.route('/', methods=['GET', 'POST'])
 def home():
     # Set Pandas options to show full DataFrame
