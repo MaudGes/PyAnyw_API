@@ -18,11 +18,11 @@ FEATURE_NAMES = [
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    prediction = None  # Default value for the result
+    prediction = None  # Default value
     
     if request.method == 'POST':
         try:
-            # Retrieve form data and convert to proper types
+            # Retrieve form data
             input_data = [
                 float(request.form['EXT_SOURCE_3']),
                 float(request.form['EXT_SOURCE_2']),
@@ -37,14 +37,20 @@ def home():
                 int(request.form['FLAG_EMP_PHONE'])
             ]
 
-            # Convert input list into a Pandas DataFrame with column names
+            # Convert input to DataFrame with feature names
             input_df = pd.DataFrame([input_data], columns=FEATURE_NAMES)
 
+            # Debugging: Print input data
+            print("Input Data:", input_df)
+
             # Perform prediction
-            prediction = model.predict(input_df)[0]  # Extract prediction
+            prediction = model.predict(input_df)[0]
+
+            # Debugging: Print prediction
+            print("Prediction:", prediction)
 
         except Exception as e:
-            return render_template('index.html', error=str(e))  # Show error message
+            return render_template('index.html', error=str(e))  
 
     return render_template('index.html', prediction=prediction)
 
