@@ -8,6 +8,10 @@ app = Flask(__name__)
 # Load the joblib pipeline
 pipeline = joblib.load('/home/MaudGes/mysite/pipeline_clients_traintest.joblib')
 
+# Check if the pipeline performs transformations on the input data (e.g., scaling or encoding)
+print("✅ Checking pipeline steps:")
+print(pipeline.named_steps)  # This will show all steps in the pipeline
+
 # Define the feature names expected by the model
 FEATURE_NAMES = [
     "EXT_SOURCE_3", "EXT_SOURCE_2", "NAME_EDUCATION_TYPE_Higher education",
@@ -17,8 +21,11 @@ FEATURE_NAMES = [
 ]
 
 def clean_input(value):
-    """Remove unwanted characters from input data (e.g., newlines, extra spaces)."""
-    return str(value).replace("\n", "").replace("\r", "").strip()  # Remove newlines and extra spaces
+    """Remove unwanted characters from input data (e.g., newlines, extra spaces, tabs)."""
+    # Ensure we're stripping whitespace, newlines, and tabs, and replace unwanted characters
+    value = str(value).replace("\n", "").replace("\r", "").replace("\t", "").strip()
+    value = value.replace('#012', '')  # Remove any occurrence of #012 if they appear
+    return value
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -47,6 +54,8 @@ def home():
 
             # Clean input data
             input_df = input_df.applymap(clean_input)
+
+            # Debugging - Check the cleaned DataFrame
             print("✅ Cleaned Input DataFrame:")
             print(input_df)
 
@@ -58,14 +67,9 @@ def home():
             # Check the type and ensure that model is correctly loaded
             print(f"✅ Pipeline loaded: {type(pipeline)}")
 
-            # Check the input features to ensure they match
-            print("✅ Input DataFrame Columns:", input_df.columns)
-            print("✅ Expected Feature Names:", FEATURE_NAMES)
-
-            # Ensure the DataFrame has the correct columns (order might not matter, but names should)
-            if sorted(input_df.columns) != sorted(FEATURE_NAMES):
-                print("❌ ERROR: Input DataFrame columns do not match the expected feature names.")
-                return render_template('index.html', error="Input DataFrame columns do not match the expected feature names.")
+            # Check the pipeline steps
+            print("✅ Checking pipeline steps:")
+            print(pipeline.named_steps)  # This will show all steps in the pipeline
 
             print("🟢 Predicting...")
             prediction = pipeline.predict(input_df)[0]  # Extract first value
