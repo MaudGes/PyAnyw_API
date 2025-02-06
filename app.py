@@ -21,57 +21,44 @@ def clean_input(value):
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    # Set Pandas options to show full DataFrame
-    import pandas as pd
-    pd.set_option('display.max_columns', None)  # Show all columns
-    pd.set_option('display.width', None)        # Prevent line breaks
-    pd.set_option('display.max_rows', None)     # Show all rows
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.width', None)
+    pd.set_option('display.max_rows', None)
 
     prediction = None  # Default value
 
-    if request.method == 'POST':
+    if request.method == 'POST':  # When user clicks "Submit"
         try:
-            # Step 1: Retrieve form data and clean it
-            input_data = [
-                clean_input(request.form['EXT_SOURCE_3']),
-                clean_input(request.form['EXT_SOURCE_2']),
-                1 if request.form.get('NAME_EDUCATION_TYPE_Higher education') == 'on' else 0,  # Check if checked
-                clean_input(request.form['CODE_GENDER']),
-                1 if request.form.get('NAME_EDUCATION_TYPE_Secondary / secondary special') == 'on' else 0,  # Check if checked
-                clean_input(request.form['FLAG_DOCUMENT_3']),
-                clean_input(request.form['AMT_REQ_CREDIT_BUREAU_HOUR']),
-                clean_input(request.form['REGION_RATING_CLIENT']),
-                clean_input(request.form['EXT_SOURCE_1']),
-                1 if request.form.get('NAME_INCOME_TYPE_Working') == 'on' else 0,  # Check if checked
-                clean_input(request.form['FLAG_EMP_PHONE'])
-            ]
+            # 🔹 Bypass form input and directly define the DataFrame
+            input_df = pd.DataFrame({
+                'EXT_SOURCE_3': [0.1],
+                'EXT_SOURCE_2': [0.2],
+                'NAME_EDUCATION_TYPE_Higher education': [1],
+                'CODE_GENDER': [0],  # Factorized (binary encoding)
+                'NAME_EDUCATION_TYPE_Secondary / secondary special': [0],
+                'FLAG_DOCUMENT_3': [1],
+                'AMT_REQ_CREDIT_BUREAU_HOUR': [0.3],
+                'REGION_RATING_CLIENT': [2],
+                'EXT_SOURCE_1': [0.25],
+                'NAME_INCOME_TYPE_Working': [1],
+                'FLAG_EMP_PHONE': [1]
+            })
 
-            # Convert input to DataFrame with feature names
-            input_df = pd.DataFrame([input_data], columns=FEATURE_NAMES)
-
-            # Step 2: Debugging - Print input data
-            print("✅ Received Data:")
+            print("✅ Input DataFrame:")
             print(input_df)
 
-            # Step 3: Model Loading Verification
+            # Check if pipeline is loaded
             if pipeline is None:
                 print("❌ ERROR: Pipeline is None!")
                 return render_template('index.html', error="Pipeline is None.")
-            else:
-                print(f"✅ Pipeline loaded successfully: {type(pipeline)}")
 
-            # Step 4: Check if input is valid before prediction
             print("🟢 Predicting...")
+            prediction = pipeline.predict(input_df)[0]  # Extract first value
 
-            # Step 5: Make prediction using the pipeline
-            prediction = pipeline.predict(input_df)[0]  # Ensure this executes
-
-            # Step 6: Debugging - Print prediction
             print("✅ Prediction:", prediction)
 
         except Exception as e:
-            # Step 7: Exception Handling and Error Logs
-            print(f"❌ Exception Occurred: {e}")
+            print(f"❌ ERROR during prediction: {e}")
             return render_template('index.html', error=str(e))
 
     # Debugging: Log sending to template
