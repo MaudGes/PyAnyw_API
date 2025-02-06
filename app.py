@@ -18,6 +18,12 @@ FEATURE_NAMES = [
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
+
+    # Set display options to show all columns and rows
+    pd.set_option('display.max_columns', None)  # Show all columns
+    pd.set_option('display.width', None)        # Prevent line breaks, display everything in a single line
+    pd.set_option('display.max_rows', None)     # Show all rows (if needed, adjust depending on data size)
+
     prediction = None  # Default value
 
     if request.method == 'POST':
