@@ -5,7 +5,7 @@ import mlflow.sklearn
 app = Flask(__name__)
 
 # Load the MLflow model
-model = mlflow.sklearn.load_model("/home/MaudGes/mlflow_model")
+model = mlflow.sklearn.load_model("/home/MaudGes/mysite/mlflow_model")
 
 @app.route('/predict', methods=['POST'])
 def predict():
