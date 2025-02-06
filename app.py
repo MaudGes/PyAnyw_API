@@ -22,18 +22,18 @@ def home():
 
     if request.method == 'POST':
         try:
-            # Retrieve form data
+            # Retrieve form data and convert booleans to 1 or 0
             input_data = [
                 float(request.form['EXT_SOURCE_3']),
                 float(request.form['EXT_SOURCE_2']),
-                bool(request.form.get('NAME_EDUCATION_TYPE_Higher education', False)),  # Defaults to False if not checked
+                int(request.form.get('NAME_EDUCATION_TYPE_Higher education', 0)),  # Defaults to 0 if not checked
                 int(request.form['CODE_GENDER']),
-                bool(request.form.get('NAME_EDUCATION_TYPE_Secondary / secondary special', False)),  # Defaults to False if not checked
+                int(request.form.get('NAME_EDUCATION_TYPE_Secondary / secondary special', 0)),  # Defaults to 0 if not checked
                 int(request.form['FLAG_DOCUMENT_3']),
                 float(request.form['AMT_REQ_CREDIT_BUREAU_HOUR']),
                 int(request.form['REGION_RATING_CLIENT']),
                 float(request.form['EXT_SOURCE_1']),
-                bool(request.form.get('NAME_INCOME_TYPE_Working', False)),  # Defaults to False if not checked
+                int(request.form.get('NAME_INCOME_TYPE_Working', 0)),  # Defaults to 0 if not checked
                 int(request.form['FLAG_EMP_PHONE'])
             ]
 
@@ -50,7 +50,7 @@ def home():
 
             # Check if input is valid before prediction
             print("🟢 Predicting...")
-            
+
             # Make prediction using the pipeline
             prediction = pipeline.predict(input_df)[0]  # Ensure this executes
 
