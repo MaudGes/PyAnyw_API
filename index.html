@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Prediction</title>
+</head>
+<body>
+    <h2>Enter Data for Prediction</h2>
+    
+    <form method="POST">
+        <label>EXT_SOURCE_3: <input type="number" step="0.01" name="EXT_SOURCE_3" required></label><br>
+        <label>EXT_SOURCE_2: <input type="number" step="0.01" name="EXT_SOURCE_2" required></label><br>
+        
+        <label>NAME_EDUCATION_TYPE_Higher education: 
+            <input type="checkbox" name="NAME_EDUCATION_TYPE_Higher education">
+        </label><br>
+        
+        <label>CODE_GENDER: 
+            <select name="CODE_GENDER">
+                <option value="0">0 (Female)</option>
+                <option value="1">1 (Male)</option>
+            </select>
+        </label><br>
+        
+        <label>NAME_EDUCATION_TYPE_Secondary / secondary special: 
+            <input type="checkbox" name="NAME_EDUCATION_TYPE_Secondary / secondary special">
+        </label><br>
+        
+        <label>FLAG_DOCUMENT_3: <input type="number" name="FLAG_DOCUMENT_3" required></label><br>
+        <label>AMT_REQ_CREDIT_BUREAU_HOUR: <input type="number" step="0.01" name="AMT_REQ_CREDIT_BUREAU_HOUR" required></label><br>
+        <label>REGION_RATING_CLIENT: <input type="number" name="REGION_RATING_CLIENT" required></label><br>
+        <label>EXT_SOURCE_1: <input type="number" step="0.01" name="EXT_SOURCE_1" required></label><br>
+        
+        <label>NAME_INCOME_TYPE_Working: 
+            <input type="checkbox" name="NAME_INCOME_TYPE_Working">
+        </label><br>
+
+        <label>FLAG_EMP_PHONE: <input type="number" name="FLAG_EMP_PHONE" required></label><br>
+
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if prediction is not none %}
+        <h3>Prediction: {{ prediction }}</h3>
+    {% endif %}
+
+    {% if error %}
+        <p style="color:red;">Error: {{ error }}</p>
+    {% endif %}
+</body>
+</html>

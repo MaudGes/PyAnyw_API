@@ -7,32 +7,38 @@ app = Flask(__name__)
 # Load the MLflow model
 model = mlflow.sklearn.load_model("/home/MaudGes/mysite/mlflow_model")
 
-# Add a home route
-@app.route('/')
+# Home route with form
+@app.route('/', methods=['GET', 'POST'])
 def home():
-    return "Welcome to the ML API! Use the /predict endpoint to make predictions."
-
-@app.route('/predict', methods=['POST'])
-def predict():
-    data = request.get_json()
+    prediction = None  # Default value for the result
     
-    try:
-        # Check if the input exists and has exactly 11 values
-        if 'input' not in data or len(data['input']) != 11:
-            return jsonify({'error': 'Invalid input. Expected an array of 11 values.'}), 400
-        
-        # Convert boolean values to 0 (False) or 1 (True)
-        input_data = [1 if isinstance(x, bool) and x else 0 if isinstance(x, bool) else x for x in data['input']]
-        
-        # Transform the input into a NumPy array with the required shape (1, 11)
-        input_data = np.array(input_data).reshape(1, -1)
-        
-        # Perform prediction
-        prediction = model.predict(input_data)
-        
-        return jsonify({'prediction': int(prediction[0])})  # Convert prediction to int for JSON response
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+    if request.method == 'POST':
+        try:
+            # Retrieve form data and convert to proper types
+            input_data = [
+                float(request.form['EXT_SOURCE_3']),
+                float(request.form['EXT_SOURCE_2']),
+                bool(request.form.get('NAME_EDUCATION_TYPE_Higher education')),
+                int(request.form['CODE_GENDER']),
+                bool(request.form.get('NAME_EDUCATION_TYPE_Secondary / secondary special')),
+                int(request.form['FLAG_DOCUMENT_3']),
+                float(request.form['AMT_REQ_CREDIT_BUREAU_HOUR']),
+                int(request.form['REGION_RATING_CLIENT']),
+                float(request.form['EXT_SOURCE_1']),
+                bool(request.form.get('NAME_INCOME_TYPE_Working')),
+                int(request.form['FLAG_EMP_PHONE'])
+            ]
+
+            # Convert input data into numpy array with shape (1, 11)
+            input_data = np.array(input_data, dtype=np.float32).reshape(1, -1)
+
+            # Perform prediction
+            prediction = model.predict(input_data)[0]  # Extract prediction
+
+        except Exception as e:
+            return render_template('index.html', error=str(e))  # Show error message
+
+    return render_template('index.html', prediction=prediction)
 
 if __name__ == '__main__':
     app.run(debug=True)
