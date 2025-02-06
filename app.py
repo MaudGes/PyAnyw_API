@@ -44,6 +44,7 @@ def home():
                 'FLAG_EMP_PHONE': [1]
             })
 
+            # Debugging - Check the DataFrame that will be passed to the model
             print("✅ Input DataFrame:")
             print(input_df)
 
@@ -52,16 +53,19 @@ def home():
                 print("❌ ERROR: Pipeline is None!")
                 return render_template('index.html', error="Pipeline is None.")
 
+            # Check the type and ensure that model is correctly loaded
+            print(f"✅ Pipeline loaded: {type(pipeline)}")
+
             print("🟢 Predicting...")
             prediction = pipeline.predict(input_df)[0]  # Extract first value
 
+            # Debugging - Log prediction
             print("✅ Prediction:", prediction)
+            
+            return render_template('index.html', prediction=prediction)
 
         except Exception as e:
             print(f"❌ ERROR during prediction: {e}")
             return render_template('index.html', error=str(e))
-
-    # Debugging: Log sending to template
-    print("🚀 Sending to template:", prediction)  # Debugging
 
     return render_template('index.html', prediction=prediction)
