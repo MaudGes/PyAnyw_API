@@ -41,7 +41,8 @@ def home():
             input_df = pd.DataFrame([input_data], columns=FEATURE_NAMES)
 
             # Step 2: Debugging - Print input data
-            print("✅ Received Data:", input_df)
+            print("✅ Received Data:")
+            print(input_df)
 
             # Step 3: Model Loading Verification
             if pipeline is None:
