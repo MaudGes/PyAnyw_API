@@ -6,7 +6,7 @@ import joblib  # Import joblib to load the pipeline
 app = Flask(__name__)
 
 # Load the joblib pipeline
-pipeline = joblib.load('/home/MaudGes/mysite/pipeline_clients_traintest.joblib')
+pipeline = joblib.load('/home/MaudGes/mysite/pipeline_clients_traintest_2.joblib')
 
 # Define the feature names expected by the model
 FEATURE_NAMES = [
