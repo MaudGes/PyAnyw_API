@@ -36,24 +36,3 @@ jobs:
     - name: Run tests
       run: |
         pytest pytest_tests.py --cov=pipeline --cov-report=xml
-
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11.10'
-
-    - name: Install MLflow
-      run: |
-        pip install mlflow
-
-    - name: Deploy Model
-      run: |
-        MODEL_PATH="${{ github.event.inputs.model_path || 'mlflow_model/' }}"
-        mlflow models serve --model-uri $MODEL_PATH --no-conda --host 0.0.0.0 --port 5000
