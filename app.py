@@ -29,7 +29,7 @@ def home():
 def predict():
     """Handle the prediction request."""
     try:
-        # Static input DataFrame (for now, no form input)
+        # Static input DataFrame (always use this on form submit)
         input_df = pd.DataFrame({
             'EXT_SOURCE_3': [0.1],
             'EXT_SOURCE_2': [0.2],
@@ -46,6 +46,9 @@ def predict():
 
         print("✅ Input DataFrame:")
         print(input_df)
+        print(input_df.dtypes)
+        print(input_df.columns)
+        print(input_df.isnull().sum())  # Check for any missing values
 
         # Ensure pipeline is loaded
         if pipeline is None:
@@ -54,11 +57,12 @@ def predict():
 
         print(f"✅ Pipeline loaded: {type(pipeline)}")
 
-        # Make prediction
+        # Make prediction using the static DataFrame
         print("🟢 Predicting...")
-        prediction = pipeline.predict(input_df)[0]  # Extract first value
+        prediction = pipeline.predict(input_df)[0]  # Extract the first prediction value
         print("✅ Prediction:", prediction)
 
+        # Return prediction to the template
         return render_template('index.html', prediction=prediction)
 
     except Exception as e:
