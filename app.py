@@ -8,7 +8,7 @@ app = Flask(__name__)
 # Load the joblib pipeline
 pipeline = joblib.load('/home/MaudGes/mysite/pipeline_clients_traintest.joblib')
 
-# Check if the pipeline performs transformations on the input data (e.g., scaling or encoding)
+# Check if the pipeline performs transformations on the input data
 print("✅ Checking pipeline steps:")
 print(pipeline.named_steps)  # This will show all steps in the pipeline
 
@@ -20,67 +20,50 @@ FEATURE_NAMES = [
     "EXT_SOURCE_1", "NAME_INCOME_TYPE_Working", "FLAG_EMP_PHONE"
 ]
 
-def clean_input(value):
-    """Remove unwanted characters from input data (e.g., newlines, extra spaces, tabs)."""
-    # Ensure we're stripping whitespace, newlines, and tabs, and replace unwanted characters
-    value = str(value).replace("\n", "").replace("\r", "").replace("\t", "").strip()
-    value = value.replace('#012', '')  # Remove any occurrence of #012 if they appear
-    return value
-
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def home():
-    pd.set_option('display.max_columns', None)
-    pd.set_option('display.width', None)
-    pd.set_option('display.max_rows', None)
+    """Render the home page."""
+    return render_template('index.html', prediction=None)
 
-    prediction = None  # Default value
+@app.route('/predict', methods=['POST'])
+def predict():
+    """Handle the prediction request."""
+    try:
+        # Static input DataFrame (for now, no form input)
+        input_df = pd.DataFrame({
+            'EXT_SOURCE_3': [0.1],
+            'EXT_SOURCE_2': [0.2],
+            'NAME_EDUCATION_TYPE_Higher education': [1],
+            'CODE_GENDER': [0],  # Factorized (binary encoding)
+            'NAME_EDUCATION_TYPE_Secondary / secondary special': [0],
+            'FLAG_DOCUMENT_3': [1],
+            'AMT_REQ_CREDIT_BUREAU_HOUR': [0.3],
+            'REGION_RATING_CLIENT': [2],
+            'EXT_SOURCE_1': [0.25],
+            'NAME_INCOME_TYPE_Working': [1],
+            'FLAG_EMP_PHONE': [1]
+        })
 
-    if request.method == 'POST':  # When user clicks "Submit"
-        try:
-            # 🔹 Bypass form input and directly define the DataFrame
-            input_df = pd.DataFrame({
-                'EXT_SOURCE_3': [0.1],
-                'EXT_SOURCE_2': [0.2],
-                'NAME_EDUCATION_TYPE_Higher education': [1],
-                'CODE_GENDER': [0],  # Factorized (binary encoding)
-                'NAME_EDUCATION_TYPE_Secondary / secondary special': [0],
-                'FLAG_DOCUMENT_3': [1],
-                'AMT_REQ_CREDIT_BUREAU_HOUR': [0.3],
-                'REGION_RATING_CLIENT': [2],
-                'EXT_SOURCE_1': [0.25],
-                'NAME_INCOME_TYPE_Working': [1],
-                'FLAG_EMP_PHONE': [1]
-            })
+        print("✅ Input DataFrame:")
+        print(input_df)
 
-            # Clean input data
-            input_df = input_df.applymap(clean_input)
+        # Ensure pipeline is loaded
+        if pipeline is None:
+            print("❌ ERROR: Pipeline is None!")
+            return render_template('index.html', error="Pipeline is None.")
 
-            # Debugging - Check the cleaned DataFrame
-            print("✅ Cleaned Input DataFrame:")
-            print(input_df)
+        print(f"✅ Pipeline loaded: {type(pipeline)}")
 
-            # Check if pipeline is loaded
-            if pipeline is None:
-                print("❌ ERROR: Pipeline is None!")
-                return render_template('index.html', error="Pipeline is None.")
+        # Make prediction
+        print("🟢 Predicting...")
+        prediction = pipeline.predict(input_df)[0]  # Extract first value
+        print("✅ Prediction:", prediction)
 
-            # Check the type and ensure that model is correctly loaded
-            print(f"✅ Pipeline loaded: {type(pipeline)}")
+        return render_template('index.html', prediction=prediction)
 
-            # Check the pipeline steps
-            print("✅ Checking pipeline steps:")
-            print(pipeline.named_steps)  # This will show all steps in the pipeline
+    except Exception as e:
+        print(f"❌ ERROR during prediction: {e}")
+        return render_template('index.html', error=str(e))
 
-            print("🟢 Predicting...")
-            prediction = pipeline.predict(input_df)[0]  # Extract first value
-
-            # Debugging - Log prediction
-            print("✅ Prediction:", prediction)
-            
-            return render_template('index.html', prediction=prediction)
-
-        except Exception as e:
-            print(f"❌ ERROR during prediction: {e}")
-            return render_template('index.html', error=str(e))
-
-    return render_template('index.html', prediction=prediction)
+if __name__ == "__main__":
+    app.run()
