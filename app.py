@@ -6,11 +6,7 @@ import joblib  # Import joblib to load the pipeline
 app = Flask(__name__)
 
 # Load the joblib pipeline
-pipeline = joblib.load('/home/MaudGes/mysite/pipeline_clients_traintest_2.joblib')
-
-# Check if the pipeline performs transformations on the input data
-print("✅ Checking pipeline steps:")
-print(pipeline.named_steps)  # This will show all steps in the pipeline
+pipeline = joblib.load('/home/MaudGes/mysite/pipeline_clients_traintest.joblib')
 
 # Define the feature names expected by the model
 FEATURE_NAMES = [
@@ -20,51 +16,55 @@ FEATURE_NAMES = [
     "EXT_SOURCE_1", "NAME_INCOME_TYPE_Working", "FLAG_EMP_PHONE"
 ]
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def home():
-    """Render the home page."""
-    return render_template('index.html', prediction=None)
+    prediction = None  # Default value
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    """Handle the prediction request."""
-    try:
-        # Static input DataFrame (always use this on form submit)
-        input_df = pd.DataFrame({
-            'EXT_SOURCE_3': [0.1],
-            'EXT_SOURCE_2': [0.2],
-            'NAME_EDUCATION_TYPE_Higher education': [1],
-            'CODE_GENDER': [0],  # Factorized (binary encoding)
-            'NAME_EDUCATION_TYPE_Secondary / secondary special': [0],
-            'FLAG_DOCUMENT_3': [1],
-            'AMT_REQ_CREDIT_BUREAU_HOUR': [0.3],
-            'REGION_RATING_CLIENT': [2],
-            'EXT_SOURCE_1': [0.25],
-            'NAME_INCOME_TYPE_Working': [1],
-            'FLAG_EMP_PHONE': [1]
-        })
+    if request.method == 'POST':
+        try:
+            # Step 1: Retrieve form data and convert booleans to 1 or 0
+            input_data = [
+                float(request.form['EXT_SOURCE_3']),
+                float(request.form['EXT_SOURCE_2']),
+                1 if request.form.get('NAME_EDUCATION_TYPE_Higher education') == 'on' else 0,  # Check if checked
+                int(request.form['CODE_GENDER']),
+                1 if request.form.get('NAME_EDUCATION_TYPE_Secondary / secondary special') == 'on' else 0,  # Check if checked
+                int(request.form['FLAG_DOCUMENT_3']),
+                float(request.form['AMT_REQ_CREDIT_BUREAU_HOUR']),
+                int(request.form['REGION_RATING_CLIENT']),
+                float(request.form['EXT_SOURCE_1']),
+                1 if request.form.get('NAME_INCOME_TYPE_Working') == 'on' else 0,  # Check if checked
+                int(request.form['FLAG_EMP_PHONE'])
+            ]
 
-        print("✅ Input DataFrame:")
-        print(input_df)
-        print(input_df.dtypes)
-        print(input_df.columns)
-        print(input_df.isnull().sum())  # Check for any missing values
+            # Convert input to DataFrame with feature names
+            input_df = pd.DataFrame([input_data], columns=FEATURE_NAMES)
 
-        # Ensure pipeline is loaded
-        if pipeline is None:
-            print("❌ ERROR: Pipeline is None!")
-            return render_template('index.html', error="Pipeline is None.")
+            # Step 2: Debugging - Print input data
+            print("✅ Received Data:", input_df)
 
-        print(f"✅ Pipeline loaded: {type(pipeline)}")
+            # Step 3: Model Loading Verification
+            if pipeline is None:
+                print("❌ ERROR: Pipeline is None!")
+                return render_template('index.html', error="Pipeline is None.")
+            else:
+                print(f"✅ Pipeline loaded successfully: {type(pipeline)}")
 
-        # Make prediction using the static DataFrame
-        print("🟢 Predicting...")
-        prediction = pipeline.predict(input_df)[0]  # Extract the first prediction value
-        print("✅ Prediction:", prediction)
+            # Step 4: Check if input is valid before prediction
+            print("🟢 Predicting...")
 
-        # Return prediction to the template
-        return render_template('index.html', prediction=prediction)
+            # Step 5: Make prediction using the pipeline
+            prediction = pipeline.predict(input_df)[0]  # Ensure this executes
 
-    except Exception as e:
-        print(f"❌ ERROR during prediction: {e}")
-        return render_template('index.html', error=str(e))
+            # Step 6: Debugging - Print prediction
+            print("✅ Prediction:", prediction)
+
+        except Exception as e:
+            # Step 7: Exception Handling and Error Logs
+            print(f"❌ Exception Occurred: {e}")
+            return render_template('index.html', error=str(e))
+
+    # Debugging: Log sending to template
+    print("🚀 Sending to template:", prediction)  # Debugging
+
+    return render_template('index.html', prediction=prediction)
