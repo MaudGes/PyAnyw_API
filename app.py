@@ -64,6 +64,3 @@ def predict():
     except Exception as e:
         print(f"❌ ERROR during prediction: {e}")
         return render_template('index.html', error=str(e))
-
-if __name__ == "__main__":
-    app.run()
