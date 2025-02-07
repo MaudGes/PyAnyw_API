@@ -6,7 +6,7 @@ import joblib  # Import joblib to load the pipeline
 app = Flask(__name__)
 
 # Load the joblib pipeline
-pipeline = joblib.load('/home/MaudGes/mysite/pipeline_clients_traintest.joblib')
+pipeline = joblib.load('/home/MaudGes/mysite/pipeline_clients_traintest_2.joblib')
 
 # Check if the pipeline performs transformations on the input data
 print("✅ Checking pipeline steps:")
