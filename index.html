@@ -10,49 +10,49 @@
     
     <form method="POST">
         <label for="EXT_SOURCE_3">EXT_SOURCE_3:</label>
-        <input type="text" name="EXT_SOURCE_3" required><br>
+        <input type="text" id="EXT_SOURCE_3" name="EXT_SOURCE_3" required><br>
 
         <label for="EXT_SOURCE_2">EXT_SOURCE_2:</label>
-        <input type="text" name="EXT_SOURCE_2" required><br>
+        <input type="text" id="EXT_SOURCE_2" name="EXT_SOURCE_2" required><br>
 
-        <label for="NAME_EDUCATION_TYPE_Higher education">Higher Education:</label>
-        <input type="checkbox" name="NAME_EDUCATION_TYPE_Higher education"><br>
+        <label for="NAME_EDUCATION_TYPE_Higher_education">Higher Education:</label>
+        <input type="checkbox" id="NAME_EDUCATION_TYPE_Higher_education" name="NAME_EDUCATION_TYPE_Higher education"><br>
 
         <label for="NAME_INCOME_TYPE_Working">Working Income:</label>
-        <input type="checkbox" name="NAME_INCOME_TYPE_Working"><br>
+        <input type="checkbox" id="NAME_INCOME_TYPE_Working" name="NAME_INCOME_TYPE_Working"><br>
 
-        <label for="NAME_EDUCATION_TYPE_Secondary / secondary special">Secondary Education:</label>
-        <input type="checkbox" name="NAME_EDUCATION_TYPE_Secondary / secondary special"><br>
+        <label for="NAME_EDUCATION_TYPE_Secondary_education">Secondary Education:</label>
+        <input type="checkbox" id="NAME_EDUCATION_TYPE_Secondary_education" name="NAME_EDUCATION_TYPE_Secondary / secondary special"><br>
 
         <label for="CODE_GENDER">Gender (0 = Female, 1 = Male):</label>
-        <input type="number" name="CODE_GENDER" required><br>
+        <input type="number" id="CODE_GENDER" name="CODE_GENDER" required><br>
 
-        <label for="NAME_CONTRACT_TYPE_Cash loans">Cash Loan:</label>
-        <input type="checkbox" name="NAME_CONTRACT_TYPE_Cash loans"><br>
+        <label for="NAME_CONTRACT_TYPE_Cash_loans">Cash Loan:</label>
+        <input type="checkbox" id="NAME_CONTRACT_TYPE_Cash_loans" name="NAME_CONTRACT_TYPE_Cash loans"><br>
 
         <label for="REGION_RATING_CLIENT">Region Rating:</label>
-        <input type="number" name="REGION_RATING_CLIENT" required><br>
+        <input type="number" id="REGION_RATING_CLIENT" name="REGION_RATING_CLIENT" required><br>
 
         <label for="FLAG_DOCUMENT_3">Flag Document 3:</label>
-        <input type="number" name="FLAG_DOCUMENT_3" required><br>
+        <input type="number" id="FLAG_DOCUMENT_3" name="FLAG_DOCUMENT_3" required><br>
 
         <button type="submit">Predict</button>
     </form>
 
     {% if probability is not none %}
-    <h2>Prediction Results:</h2>
-    <p><strong>Repayment Probability:</strong> {{ probability | round(2) }}</p>
-    <p><strong>Final Decision:</strong>
-        {% if prediction == 1 %}
-            Will Default (at risk)
-        {% else %}
-            Will Repay (low risk)
-        {% endif %}
-    </p>
-{% endif %}
+        <h2>Prediction Results:</h2>
+        <p><strong>Repayment Probability:</strong> {{ probability | round(2) }}</p>
+        <p><strong>Final Decision:</strong>
+            {% if prediction == 1 %}
+                Will Default (at risk)
+            {% else %}
+                Will Repay (low risk)
+            {% endif %}
+        </p>
+    {% endif %}
 
-{% if error %}
-    <p style="color: red;"><strong>Error:</strong> {{ error }}</p>
-{% endif %}
+    {% if error %}
+        <p style="color: red;"><strong>Error:</strong> {{ error }}</p>
+    {% endif %}
 </body>
 </html>

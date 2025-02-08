@@ -66,7 +66,7 @@ def mock_csv_data():
         'EXT_SOURCE_1': [0.8, 0.9],
         'NAME_INCOME_TYPE': ['Working', 'Working'],
         'FLAG_EMP_PHONE': [1, 0],
-        'NAME_CONTRACT_TYPE_Cash loans':[]
+        'NAME_CONTRACT_TYPE_Cash loans':['Cash loans','Cash loans']
     })
 
     return application_train, mock_test_data
