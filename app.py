@@ -36,13 +36,12 @@ def home():
                 float(request.form['EXT_SOURCE_3']),
                 float(request.form['EXT_SOURCE_2']),
                 1 if request.form.get('NAME_EDUCATION_TYPE_Higher education') == 'on' else 0,  # Check if checked
-                int(request.form['CODE_GENDER']),
+                1 if request.form.get('NAME_INCOME_TYPE_Working') == 'on' else 0,  # Check if checked
                 1 if request.form.get('NAME_EDUCATION_TYPE_Secondary / secondary special') == 'on' else 0,  # Check if checked
-                int(request.form['FLAG_DOCUMENT_3']),
+                int(request.form['CODE_GENDER']),
                 1 if request.form.get('NAME_CONTRACT_TYPE_Cash loans') == 'on' else 0,  # Check if checked
                 int(request.form['REGION_RATING_CLIENT']),
-                float(request.form['EXT_SOURCE_1']),
-                1 if request.form.get('NAME_INCOME_TYPE_Working') == 'on' else 0,  # Check if checked
+                int(request.form['FLAG_DOCUMENT_3']),
             ]
 
             # Convert input to DataFrame with feature names
