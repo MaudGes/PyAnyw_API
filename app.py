@@ -1,70 +1,70 @@
 from flask import Flask, request, jsonify, render_template
 import numpy as np
-import pandas as pd  # Import Pandas
+import pandas as pd
 import joblib  # Import joblib to load the pipeline
 
 app = Flask(__name__)
 
-# Load the joblib pipeline
-pipeline = joblib.load('/home/MaudGes/mysite/pipeline_clients_traintest_2.joblib')
+# Load the trained pipeline
+pipeline = joblib.load('/home/MaudGes/mysite/pipeline_clients_traintest_4.joblib')
 
-# Define the feature names expected by the model
+# Define the expected feature names
 FEATURE_NAMES = [
-    "EXT_SOURCE_3", "EXT_SOURCE_2", "NAME_EDUCATION_TYPE_Higher education",
-    "CODE_GENDER", "NAME_EDUCATION_TYPE_Secondary / secondary special",
-    "FLAG_DOCUMENT_3", "AMT_REQ_CREDIT_BUREAU_HOUR", "REGION_RATING_CLIENT",
-    "EXT_SOURCE_1", "NAME_INCOME_TYPE_Working", "FLAG_EMP_PHONE"
+    "EXT_SOURCE_3",
+    "EXT_SOURCE_2",
+    "NAME_EDUCATION_TYPE_Higher education",
+    "NAME_INCOME_TYPE_Working",
+    "NAME_EDUCATION_TYPE_Secondary / secondary special",
+    "CODE_GENDER",
+    "NAME_CONTRACT_TYPE_Cash loans",
+    "REGION_RATING_CLIENT",
+    "FLAG_DOCUMENT_3"
 ]
+
+# Optimal threshold for final classification
+OPTIMAL_THRESHOLD = 0.15  
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
     prediction = None  # Default value
+    probability = None  # Default probability
 
     if request.method == 'POST':
         try:
-            # Step 1: Retrieve form data and convert booleans to 1 or 0
+            # Retrieve form data and convert to correct types
             input_data = [
                 float(request.form['EXT_SOURCE_3']),
                 float(request.form['EXT_SOURCE_2']),
-                1 if request.form.get('NAME_EDUCATION_TYPE_Higher education') == 'on' else 0,  # Check if checked
+                1 if request.form.get('NAME_EDUCATION_TYPE_Higher education') == 'on' else 0,
+                1 if request.form.get('NAME_INCOME_TYPE_Working') == 'on' else 0,
+                1 if request.form.get('NAME_EDUCATION_TYPE_Secondary / secondary special') == 'on' else 0,
                 int(request.form['CODE_GENDER']),
-                1 if request.form.get('NAME_EDUCATION_TYPE_Secondary / secondary special') == 'on' else 0,  # Check if checked
-                int(request.form['FLAG_DOCUMENT_3']),
-                float(request.form['AMT_REQ_CREDIT_BUREAU_HOUR']),
+                1 if request.form.get('NAME_CONTRACT_TYPE_Cash loans') == 'on' else 0,
                 int(request.form['REGION_RATING_CLIENT']),
-                float(request.form['EXT_SOURCE_1']),
-                1 if request.form.get('NAME_INCOME_TYPE_Working') == 'on' else 0,  # Check if checked
-                int(request.form['FLAG_EMP_PHONE'])
+                int(request.form['FLAG_DOCUMENT_3'])
             ]
 
-            # Convert input to DataFrame with feature names
+            # Convert input data to DataFrame
             input_df = pd.DataFrame([input_data], columns=FEATURE_NAMES)
 
-            # Step 2: Debugging - Print input data
             print("✅ Received Data:", input_df)
 
-            # Step 3: Model Loading Verification
             if pipeline is None:
                 print("❌ ERROR: Pipeline is None!")
-                return render_template('index.html', error="Pipeline is None.")
-            else:
-                print(f"✅ Pipeline loaded successfully: {type(pipeline)}")
+                return render_template('index.html', error="Pipeline not loaded.")
 
-            # Step 4: Check if input is valid before prediction
             print("🟢 Predicting...")
 
-            # Step 5: Make prediction using the pipeline
-            prediction = pipeline.predict(input_df)[0]  # Ensure this executes
+            # Get probability of repayment
+            probability = pipeline.predict_proba(input_df)[:, 1][0]
 
-            # Step 6: Debugging - Print prediction
-            print("✅ Prediction:", prediction)
+            # Apply threshold to determine final classification
+            prediction = int(probability >= OPTIMAL_THRESHOLD)
+
+            print(f"✅ Probability of repayment: {probability:.2f}, Final prediction: {prediction}")
 
         except Exception as e:
-            # Step 7: Exception Handling and Error Logs
             print(f"❌ Exception Occurred: {e}")
             return render_template('index.html', error=str(e))
 
-    # Debugging: Log sending to template
-    print("🚀 Sending to template:", prediction)  # Debugging
-
-    return render_template('index.html', prediction=prediction)
+    return render_template('index.html', probability=probability, prediction=prediction)
