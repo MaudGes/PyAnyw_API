@@ -49,6 +49,7 @@ def mock_csv_data():
         'EXT_SOURCE_1': [np.nan, 0.7, 0.6],
         'NAME_INCOME_TYPE': ['Working', 'Working', 'Working'],
         'FLAG_EMP_PHONE': [1, 0, 1],
+        'NAME_CONTRACT_TYPE_Cash loans':['Cash loans','Cash loans']
         'TARGET': [0, 1, 1]
     })
 

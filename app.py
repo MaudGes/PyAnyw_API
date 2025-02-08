@@ -39,11 +39,10 @@ def home():
                 int(request.form['CODE_GENDER']),
                 1 if request.form.get('NAME_EDUCATION_TYPE_Secondary / secondary special') == 'on' else 0,  # Check if checked
                 int(request.form['FLAG_DOCUMENT_3']),
-                float(request.form['AMT_REQ_CREDIT_BUREAU_HOUR']),
+                1 if request.form.get('NAME_CONTRACT_TYPE_Cash loans') == 'on' else 0,  # Check if checked
                 int(request.form['REGION_RATING_CLIENT']),
                 float(request.form['EXT_SOURCE_1']),
                 1 if request.form.get('NAME_INCOME_TYPE_Working') == 'on' else 0,  # Check if checked
-                int(request.form['FLAG_EMP_PHONE'])
             ]
 
             # Convert input to DataFrame with feature names
