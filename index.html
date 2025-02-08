@@ -40,13 +40,19 @@
     </form>
 
     {% if probability is not none %}
-        <h2>Prediction Results:</h2>
-        <p><strong>Repayment Probability:</strong> {{ probability | round(2) }}</p>
-        <p><strong>Final Decision:</strong> {% if prediction == 1 %} Will Repay {% else %} Will Default {% endif %}</p>
-    {% endif %}
+    <h2>Prediction Results:</h2>
+    <p><strong>Repayment Probability:</strong> {{ probability | round(2) }}</p>
+    <p><strong>Final Decision:</strong>
+        {% if prediction == 1 %}
+            Will Default (at risk)
+        {% else %}
+            Will Repay (low risk)
+        {% endif %}
+    </p>
+{% endif %}
 
-    {% if error %}
-        <p style="color: red;"><strong>Error:</strong> {{ error }}</p>
-    {% endif %}
+{% if error %}
+    <p style="color: red;"><strong>Error:</strong> {{ error }}</p>
+{% endif %}
 </body>
 </html>

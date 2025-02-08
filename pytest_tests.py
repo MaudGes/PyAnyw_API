@@ -65,7 +65,8 @@ def mock_csv_data():
         'REGION_RATING_CLIENT': [3, 2],
         'EXT_SOURCE_1': [0.8, 0.9],
         'NAME_INCOME_TYPE': ['Working', 'Working'],
-        'FLAG_EMP_PHONE': [1, 0]
+        'FLAG_EMP_PHONE': [1, 0],
+        'NAME_CONTRACT_TYPE_Cash loans':[]
     })
 
     return application_train, mock_test_data
@@ -88,8 +89,7 @@ def test_application_test(mock_csv_data):
     assert 'SK_ID_CURR' not in df.columns, "SK_ID_CURR should not be in the resulting dataframe."
 
     # Ensure only relevant columns remain
-    expected_columns = ['EXT_SOURCE_3', 'EXT_SOURCE_2', 'NAME_EDUCATION_TYPE_Higher education',
-                        'CODE_GENDER', 'NAME_EDUCATION_TYPE_Secondary / secondary special',
-                        'FLAG_DOCUMENT_3', 'AMT_REQ_CREDIT_BUREAU_HOUR', 'REGION_RATING_CLIENT',
-                        'EXT_SOURCE_1', 'NAME_INCOME_TYPE_Working', 'FLAG_EMP_PHONE', 'TARGET']
+    expected_columns = ["EXT_SOURCE_3","EXT_SOURCE_2","NAME_EDUCATION_TYPE_Higher education",
+    "NAME_INCOME_TYPE_Working", "NAME_EDUCATION_TYPE_Secondary / secondary special", "CODE_GENDER",
+    "NAME_CONTRACT_TYPE_Cash loans","REGION_RATING_CLIENT","FLAG_DOCUMENT_3", "TARGET"]
     assert set(expected_columns).issubset(df.columns), "Some expected columns are missing in the final dataframe."
