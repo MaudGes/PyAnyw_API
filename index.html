@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>Credit Repayment Estimator</h1>
-    
+
     <form method="POST">
         <label for="EXT_SOURCE_3">EXT_SOURCE_3:</label>
         <input type="text" id="EXT_SOURCE_3" name="EXT_SOURCE_3" required><br>
@@ -41,7 +41,7 @@
 
     {% if probability is not none %}
         <h2>Prediction Results:</h2>
-        <p><strong>Repayment Probability:</strong> {{ probability | round(2) }}</p>
+        <p><strong>Client probability to not repay:</strong> {{ probability | round(5) }}</p>
         <p><strong>Final Decision:</strong>
             {% if prediction == 1 %}
                 Will Default (at risk)

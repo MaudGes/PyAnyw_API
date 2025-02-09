@@ -62,7 +62,7 @@ def home():
             print("✅ Prediction Probability:", prediction_prob)
             print("✅ Final Prediction:", prediction)
 
-            probability = round(prediction_prob, 2)  # Round the probability to 2 decimal places for display
+            probability = round(prediction_prob, 5)  # Round the probability to 2 decimal places for display
 
         except Exception as e:
             # Step 5: Exception Handling and Error Logs
