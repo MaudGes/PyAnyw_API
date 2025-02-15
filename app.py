@@ -85,7 +85,7 @@ def home():
 # Partie Dashboard Dash intégrée à Flask
 # ----------------------------
 # Charger le DataFrame des clients pour le dashboard
-df_clients = pd.read_csv('credit_files/cust_dash.csv')
+df_clients = pd.read_csv('/home/MaudGes/mysite/credit_files/cust_dash.csv')
 
 # Calculer la probabilité et le score pour chaque client
 df_clients['probability'] = pipeline.predict_proba(df_clients[FEATURE_NAMES])[:, 1]
