@@ -115,6 +115,7 @@ dash_app = dash.Dash(
 dash_app.layout = dbc.Container([
     html.H1("Dashboard de prédiction du remboursement de crédit"),
     
+    # Ligne 1 : Sélection du client
     dbc.Row([
         dbc.Col([
             html.Label("Sélectionner un client"),
@@ -126,6 +127,7 @@ dash_app.layout = dbc.Container([
         ], width=4),
     ], className="my-3"),
     
+    # Ligne 2 : Score, probabilité et graphique SHAP local
     dbc.Row([
         dbc.Col([
             html.H3("Score et Probabilité"),
@@ -138,6 +140,19 @@ dash_app.layout = dbc.Container([
         ], width=8)
     ], className="my-3"),
     
+    # Ligne 3 : Jauge et comparaison Local vs Global
+    dbc.Row([
+        dbc.Col([
+            html.H3("Indicateur : Écart par rapport au seuil"),
+            dcc.Graph(id='gauge-indicator')
+        ], width=6),
+        dbc.Col([
+            html.H3("Comparaison des Features : Local vs Global"),
+            dcc.Graph(id='global-local-graph')
+        ], width=6)
+    ], className="my-3"),
+    
+    # Ligne 4 : Comparaison distribution d'une feature (optionnel)
     dbc.Row([
         dbc.Col([
             html.H3("Comparaison avec d'autres clients"),
@@ -148,17 +163,6 @@ dash_app.layout = dbc.Container([
             ),
             dcc.Graph(id='comparative-graph')
         ])
-    ], className="my-3"),
-    
-    dbc.Row([
-        dbc.Col([
-            html.H3("Indicateur : Écart par rapport au seuil"),
-            dcc.Graph(id='gauge-indicator')
-        ], width=6),
-        dbc.Col([
-            html.H3("Comparaison des Features : Local vs Global"),
-            dcc.Graph(id='global-local-graph')
-        ], width=6)
     ], className="my-3")
 ], fluid=True)
 
