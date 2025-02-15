@@ -9,11 +9,12 @@ import dash
 from dash import dcc, html, Input, Output
 import dash_bootstrap_components as dbc
 import plotly.express as px
+import plotly.graph_objects as go
 
 # ----------------------------
 # Partie Flask
 # ----------------------------
-# Créez l'application Flask
+# Créez l'application Flask (cette variable est importée par wsgi.py)
 app = Flask(__name__)
 
 # Charger le pipeline (modèle entraîné)
@@ -91,10 +92,16 @@ df_clients = pd.read_csv('/home/MaudGes/mysite/credit_files/cust_dash.csv')
 df_clients['probability'] = pipeline.predict_proba(df_clients[FEATURE_NAMES])[:, 1]
 df_clients['score'] = (df_clients['probability'] >= OPTIMAL_THRESHOLD).astype(int)
 
-# Créer un explainer pour SHAP (pour XGBClassifier, vous pouvez également utiliser TreeExplainer)
+# Créer un explainer pour SHAP (pour XGBClassifier, on peut aussi utiliser TreeExplainer)
 explainer = shap.Explainer(pipeline['model'])
-# Calculer (optionnellement) les valeurs SHAP globales
+# Calculer (optionnellement) les valeurs SHAP globales pour toutes les lignes
 shap_values_global = explainer(df_clients[FEATURE_NAMES])
+# Calcul de l'importance globale : moyenne des valeurs absolues de SHAP pour chaque feature
+global_importance = np.abs(shap_values_global.values).mean(axis=0)
+global_df = pd.DataFrame({
+    'Feature': FEATURE_NAMES,
+    'Global Importance': global_importance
+})
 
 # Créer l'application Dash en utilisant le serveur Flask
 dash_app = dash.Dash(
@@ -126,10 +133,10 @@ dash_app.layout = dbc.Container([
             html.Div(id='probability-output'),
         ], width=4),
         dbc.Col([
-            html.H3("Contributions des Features (SHAP)"),
+            html.H3("Contributions des Features (SHAP Local)"),
             dcc.Graph(id='shap-graph')
         ], width=8)
-    ]),
+    ], className="my-3"),
     
     dbc.Row([
         dbc.Col([
@@ -141,7 +148,18 @@ dash_app.layout = dbc.Container([
             ),
             dcc.Graph(id='comparative-graph')
         ])
-    ])
+    ], className="my-3"),
+    
+    dbc.Row([
+        dbc.Col([
+            html.H3("Indicateur : Écart par rapport au seuil"),
+            dcc.Graph(id='gauge-indicator')
+        ], width=6),
+        dbc.Col([
+            html.H3("Comparaison des Features : Local vs Global"),
+            dcc.Graph(id='global-local-graph')
+        ], width=6)
+    ], className="my-3")
 ], fluid=True)
 
 # Callback pour mettre à jour le score et la probabilité du client sélectionné
@@ -160,7 +178,7 @@ def update_score(client_index):
         f"Probabilité de non-remboursement: {prob:.2%}"
     )
 
-# Callback pour mettre à jour le graphique SHAP pour le client sélectionné
+# Callback pour mettre à jour le graphique SHAP local pour le client sélectionné
 @dash_app.callback(
     Output('shap-graph', 'figure'),
     Input('client-dropdown', 'value')
@@ -170,10 +188,10 @@ def update_shap_graph(client_index):
     shap_values_local = explainer(client_data)
     shap_df = pd.DataFrame({
         'Feature': FEATURE_NAMES,
-        'Contribution': shap_values_local.values[0]
-    }).sort_values(by='Contribution', key=abs, ascending=False)
+        'Local Contribution': shap_values_local.values[0]
+    }).sort_values(by='Local Contribution', key=abs, ascending=False)
     
-    fig = px.bar(shap_df, x='Feature', y='Contribution',
+    fig = px.bar(shap_df, x='Feature', y='Local Contribution',
                  title="Contribution des features pour ce client")
     return fig
 
@@ -198,4 +216,58 @@ def update_comparative_graph(selected_feature, client_index):
         annotation_text="Valeur du client",
         annotation_position="top right"
     )
+    return fig
+
+# Callback pour mettre à jour la jauge indiquant l'écart par rapport au seuil
+@dash_app.callback(
+    Output('gauge-indicator', 'figure'),
+    Input('client-dropdown', 'value')
+)
+def update_gauge(client_index):
+    client_prob = df_clients.loc[client_index, 'probability']
+    # Choisir la couleur de la barre de jauge en fonction du seuil
+    bar_color = "green" if client_prob < OPTIMAL_THRESHOLD else "red"
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number+delta",
+        value=client_prob,
+        domain={'x': [0, 1], 'y': [0, 1]},
+        title={'text': "Probabilité de non-remboursement"},
+        delta={'reference': OPTIMAL_THRESHOLD, 'increasing': {'color': "red"}, 'decreasing': {'color': "green"}},
+        gauge={
+            'axis': {'range': [0, 1]},
+            'bar': {'color': bar_color},
+            'steps': [
+                {'range': [0, OPTIMAL_THRESHOLD], 'color': 'lightgreen'},
+                {'range': [OPTIMAL_THRESHOLD, 1], 'color': 'lightcoral'}
+            ],
+            'threshold': {
+                'line': {'color': "black", 'width': 4},
+                'thickness': 0.75,
+                'value': OPTIMAL_THRESHOLD
+            }
+        }
+    ))
+    return fig
+
+# Callback pour comparer la contribution locale du client avec l'importance globale
+@dash_app.callback(
+    Output('global-local-graph', 'figure'),
+    Input('client-dropdown', 'value')
+)
+def update_global_local_graph(client_index):
+    # Récupérer les valeurs SHAP locales pour le client sélectionné
+    client_data = df_clients.loc[[client_index]][FEATURE_NAMES]
+    shap_values_local = explainer(client_data)
+    local_contrib = np.abs(shap_values_local.values[0])
+    
+    # Préparer un DataFrame comparatif
+    compare_df = pd.DataFrame({
+        'Feature': FEATURE_NAMES,
+        'Local Contribution': local_contrib,
+        'Global Importance': global_importance
+    })
+    
+    # Création d'un graphique groupé
+    fig = px.bar(compare_df, x='Feature', y=['Local Contribution', 'Global Importance'],
+                 barmode='group', title="Comparaison : Contribution Locale vs Importance Globale")
     return fig
