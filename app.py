@@ -264,47 +264,60 @@ def update_comparative_graph(selected_feature, client_index):
 )
 def update_gauge(client_index):
     client_prob = df_clients.loc[client_index, 'probability']
-    bar_color = "green" if client_prob < OPTIMAL_THRESHOLD else "red"
-    # Création de la jauge
-    fig = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=client_prob,
-        domain={'x': [0, 1], 'y': [0, 1]},
-        title={'text': "Probabilité de non-remboursement"},
-        gauge={
-            'axis': {'range': [0, 1], 'tickmode': 'linear', 'dtick': 0.1},
-            'bar': {'color': bar_color, 'thickness': 0.25},
-            'steps': [
-                {'range': [0, OPTIMAL_THRESHOLD], 'color': 'lightgreen'},
-                {'range': [OPTIMAL_THRESHOLD, 1], 'color': 'lightcoral'}
-            ],
-            'threshold': {
-                'line': {'color': "black", 'width': 4},
-                'thickness': 0.75,
-                'value': OPTIMAL_THRESHOLD
-            }
-        }
-    ))
+    # Choix de la couleur en fonction du seuil
+    color = "green" if client_prob < OPTIMAL_THRESHOLD else "red"
     
-    # Calculer l'angle correspondant à la probabilité.
-    # Pour une jauge semi-circulaire, l'angle varie de 180° (à gauche pour une valeur 0)
-    # à 0° (à droite pour une valeur 1). On calcule donc :
-    angle = (1 - client_prob) * 180  # en degrés
-    angle_rad = np.deg2rad(angle)
-    # Coordonnées du centre de la jauge (0.5, 0.5) et une longueur d'aiguille choisie (ici 0.35)
-    r = 0.35
-    x_tip = 0.5 + r * np.cos(angle_rad)
-    y_tip = 0.5 + r * np.sin(angle_rad)
+    # Création d'une figure vide
+    fig = go.Figure()
     
-    # Ajouter une forme de type "line" pour simuler l'aiguille
+    # Ajouter la barre de fond représentant l'échelle de 0 à 100%
+    fig.add_shape(
+        type="rect",
+        x0=0, x1=1, y0=0.4, y1=0.6,
+        fillcolor="lightgrey",
+        line=dict(width=0)
+    )
+    
+    # Ajouter une barre colorée de 0 jusqu'à la probabilité du client
+    fig.add_shape(
+        type="rect",
+        x0=0, x1=client_prob, y0=0.4, y1=0.6,
+        fillcolor=color,
+        line=dict(width=0)
+    )
+    
+    # Ajouter une flèche (ici, une ligne verticale) indiquant la position exacte
+    fig.add_shape(
+        type="line",
+        x0=client_prob, x1=client_prob,
+        y0=0.35, y1=0.65,
+        line=dict(color="black", width=4)
+    )
+    
+    # Ajouter une annotation avec le pourcentage
+    fig.add_annotation(
+        x=client_prob, y=0.7,
+        text=f"{client_prob*100:.1f}%",
+        showarrow=False,
+        font=dict(size=14, color="black")
+    )
+    
+    # Configuration de l'axe x (de 0 à 1, avec des ticks tous les 10%)
     fig.update_layout(
-        shapes=[dict(
-            type='line',
-            x0=0.5, y0=0.5,
-            x1=x_tip, y1=y_tip,
-            line=dict(color="black", width=4)
-        )],
-        margin=dict(l=20, r=20, t=50, b=20)
+        xaxis=dict(
+            range=[0, 1],
+            showgrid=False,
+            tickmode='linear',
+            dtick=0.1,
+            tickformat=".0%"
+        ),
+        yaxis=dict(
+            range=[0, 1],
+            showgrid=False,
+            showticklabels=False
+        ),
+        margin=dict(l=20, r=20, t=20, b=20),
+        height=150
     )
     return fig
 
