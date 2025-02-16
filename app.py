@@ -103,7 +103,7 @@ global_df = pd.DataFrame({
     'Global Importance': global_importance
 })
 
-# Créer l'application Dash en utilisant le serveur Flask
+# Création de l'application Dash en utilisant le serveur Flask
 dash_app = dash.Dash(
     __name__,
     server=app,
@@ -111,14 +111,15 @@ dash_app = dash.Dash(
     external_stylesheets=[dbc.themes.BOOTSTRAP]
 )
 
-# Layout du dashboard Dash
+# Layout du dashboard Dash avec attributs d’accessibilité
 dash_app.layout = dbc.Container([
-    # Navbar de navigation pour retourner à la page de prédiction
+    # Navbar de navigation avec titre accessible
     dbc.NavbarSimple(
         children=[
-            dbc.NavItem(dbc.NavLink("Prédiction", href="/")),
+            dbc.NavItem(dbc.NavLink("Prédiction", href="/", aria_label="Retour à la page de prédiction")),
         ],
-        brand="Dashboard",
+        brand="Dashboard – Analyse du remboursement de crédit",
+        brand_href="/dashboard/",
         color="primary",
         dark=True,
         className="mb-4"
@@ -127,11 +128,12 @@ dash_app.layout = dbc.Container([
     # Ligne 1 : Sélection du client
     dbc.Row([
         dbc.Col([
-            html.Label("Sélectionner un client"),
+            html.Label("Sélectionner un client", id="client-dropdown-label"),
             dcc.Dropdown(
                 id='client-dropdown',
                 options=[{'label': f"Client {i}", 'value': i} for i in df_clients.index],
-                value=df_clients.index[0]
+                value=df_clients.index[0],
+                aria_label="Sélectionner un client"
             )
         ], width=4),
     ], className="my-3"),
@@ -139,64 +141,82 @@ dash_app.layout = dbc.Container([
     # Ligne 2 : Score, probabilité et graphique SHAP local
     dbc.Row([
         dbc.Col([
-            html.H3("Score et Probabilité"),
+            html.H3("Score et Probabilité", id="score-prob-title"),
             html.Div(id='score-output'),
             html.Div(id='probability-output'),
         ], width=4),
         dbc.Col([
-            html.H3("Contributions des Features (SHAP Local)"),
-            dcc.Graph(id='shap-graph')
+            html.H3("Contributions des Features (SHAP Local)", id="shap-local-title"),
+            dcc.Graph(
+                id='shap-graph',
+                aria_label="Graphique montrant la contribution locale de chaque feature pour ce client"
+            )
         ], width=8)
     ], className="my-3"),
     
     # Ligne 3 : Jauge et comparaison Local vs Global
     dbc.Row([
         dbc.Col([
-            html.H3("Indicateur : Écart par rapport au seuil"),
-            dcc.Graph(id='gauge-indicator')
+            html.H3("Indicateur : Écart par rapport au seuil", id="gauge-title"),
+            dcc.Graph(
+                id='gauge-indicator',
+                aria_label="Barre horizontale indiquant la probabilité de non-remboursement du client"
+            )
         ], width=6),
         dbc.Col([
-            html.H3("Comparaison des Features : Local vs Global"),
-            dcc.Graph(id='global-local-graph')
+            html.H3("Comparaison des Features : Local vs Global", id="global-local-title"),
+            dcc.Graph(
+                id='global-local-graph',
+                aria_label="Graphique comparant la contribution locale des features à leur importance globale"
+            )
         ], width=6)
     ], className="my-3"),
     
     # Ligne 4 : Analyse bivariée entre deux features
     dbc.Row([
         dbc.Col([
-            html.H3("Analyse bivariée"),
-            html.Label("Sélectionner la feature X"),
+            html.H3("Analyse bivariée", id="bivariate-title"),
+            html.Label("Sélectionner la feature X", id="feature-x-label"),
             dcc.Dropdown(
                 id='feature-x-dropdown',
                 options=[{'label': feature, 'value': feature} for feature in FEATURE_NAMES],
-                value=FEATURE_NAMES[0]
+                value=FEATURE_NAMES[0],
+                aria_label="Sélectionner la première feature pour l'analyse bivariée"
             )
         ], width=6),
         dbc.Col([
-            html.Label("Sélectionner la feature Y"),
+            html.Label("Sélectionner la feature Y", id="feature-y-label"),
             dcc.Dropdown(
                 id='feature-y-dropdown',
                 options=[{'label': feature, 'value': feature} for feature in FEATURE_NAMES],
-                value=FEATURE_NAMES[1]
+                value=FEATURE_NAMES[1],
+                aria_label="Sélectionner la deuxième feature pour l'analyse bivariée"
             )
         ], width=6)
     ], className="my-3"),
     dbc.Row([
         dbc.Col([
-            dcc.Graph(id='bivariate-graph')
+            dcc.Graph(
+                id='bivariate-graph',
+                aria_label="Graphique de nuage de points analysant la relation entre deux features sélectionnées"
+            )
         ])
     ], className="my-3"),
     
     # Ligne 5 : Comparaison distribution d'une feature (optionnel)
     dbc.Row([
         dbc.Col([
-            html.H3("Comparaison avec d'autres clients"),
+            html.H3("Comparaison avec d'autres clients", id="comparative-title"),
             dcc.Dropdown(
                 id='filter-dropdown',
                 options=[{'label': feature, 'value': feature} for feature in FEATURE_NAMES],
-                value=FEATURE_NAMES[0]
+                value=FEATURE_NAMES[0],
+                aria_label="Sélectionner une feature pour comparer sa distribution parmi tous les clients"
             ),
-            dcc.Graph(id='comparative-graph')
+            dcc.Graph(
+                id='comparative-graph',
+                aria_label="Graphique montrant la distribution de la feature sélectionnée parmi tous les clients"
+            )
         ])
     ], className="my-3")
 ], fluid=True)
@@ -232,6 +252,10 @@ def update_shap_graph(client_index):
     
     fig = px.bar(shap_df, x='Feature', y='Local Contribution',
                  title="Contribution des features pour ce client")
+    # Ajouter une description textuelle pour les lecteurs d'écran
+    fig.update_layout(
+        title={'text': "Graphique de contribution locale (SHAP). Les barres indiquent l'impact de chaque feature sur la prédiction.", 'x':0.5}
+    )
     return fig
 
 # Callback pour mettre à jour le graphique comparatif en fonction de la feature sélectionnée
@@ -264,29 +288,29 @@ def update_comparative_graph(selected_feature, client_index):
 )
 def update_gauge(client_index):
     client_prob = df_clients.loc[client_index, 'probability']
-    # Choix de la couleur en fonction du seuil
     color = "green" if client_prob < OPTIMAL_THRESHOLD else "red"
     
-    # Création d'une figure vide
     fig = go.Figure()
     
-    # Ajouter la barre de fond représentant l'échelle de 0 à 100%
+    # Barre de fond accessible
     fig.add_shape(
         type="rect",
         x0=0, x1=1, y0=0.4, y1=0.6,
         fillcolor="lightgrey",
-        line=dict(width=0)
+        line=dict(width=0),
+        name="Échelle complète"
     )
     
-    # Ajouter une barre colorée de 0 jusqu'à la probabilité du client
+    # Barre colorée jusqu'à la probabilité du client
     fig.add_shape(
         type="rect",
         x0=0, x1=client_prob, y0=0.4, y1=0.6,
         fillcolor=color,
-        line=dict(width=0)
+        line=dict(width=0),
+        name="Valeur du client"
     )
     
-    # Ajouter une flèche (ici, une ligne verticale) indiquant la position exacte
+    # Ligne verticale (flèche) indiquant la position exacte
     fig.add_shape(
         type="line",
         x0=client_prob, x1=client_prob,
@@ -294,7 +318,7 @@ def update_gauge(client_index):
         line=dict(color="black", width=4)
     )
     
-    # Ajouter une annotation avec le pourcentage
+    # Annotation textuelle indiquant le pourcentage
     fig.add_annotation(
         x=client_prob, y=0.7,
         text=f"{client_prob*100:.1f}%",
@@ -302,7 +326,6 @@ def update_gauge(client_index):
         font=dict(size=14, color="black")
     )
     
-    # Configuration de l'axe x (de 0 à 1, avec des ticks tous les 10%)
     fig.update_layout(
         xaxis=dict(
             range=[0, 1],
@@ -317,7 +340,8 @@ def update_gauge(client_index):
             showticklabels=False
         ),
         margin=dict(l=20, r=20, t=20, b=20),
-        height=150
+        height=150,
+        title="Barre d'indication de la probabilité"
     )
     return fig
 
@@ -337,6 +361,9 @@ def update_global_local_graph(client_index):
     })
     fig = px.bar(compare_df, x='Feature', y=['Local Contribution', 'Global Importance'],
                  barmode='group', title="Comparaison : Contribution Locale vs Importance Globale")
+    fig.update_layout(
+        title={'text': "Graphique comparatif de la contribution locale (pour ce client) et de l'importance globale des features", 'x':0.5}
+    )
     return fig
 
 # Callback pour réaliser une analyse bivariée entre deux features sélectionnées
@@ -346,8 +373,10 @@ def update_global_local_graph(client_index):
     Input('feature-y-dropdown', 'value')
 )
 def update_bivariate_graph(feature_x, feature_y):
-    # Création d'un nuage de points entre feature_x et feature_y
     fig = px.scatter(df_clients, x=feature_x, y=feature_y,
                      title=f"Analyse bivariée : {feature_x} vs {feature_y}",
                      trendline="ols")
+    fig.update_layout(
+        title={'text': f"Nuage de points et tendance linéaire entre {feature_x} et {feature_y}", 'x':0.5}
+    )
     return fig
