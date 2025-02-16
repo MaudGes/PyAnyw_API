@@ -113,10 +113,10 @@ dash_app = dash.Dash(
 
 # Layout du dashboard Dash avec attributs d’accessibilité
 dash_app.layout = dbc.Container([
-    # Navbar de navigation avec titre accessible
+    # Navbar de navigation identique
     dbc.NavbarSimple(
         children=[
-            dbc.NavItem(dbc.NavLink("Prédiction", href="/", aria_label="Retour à la page de prédiction")),
+            dbc.NavItem(dbc.NavLink("Prédiction", href="/")),
         ],
         brand="Dashboard – Analyse du remboursement de crédit",
         brand_href="/dashboard/",
