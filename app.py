@@ -14,7 +14,7 @@ import plotly.graph_objects as go
 # ----------------------------
 # Partie Flask
 # ----------------------------
-# Créez l'application Flask (cette variable est importée par wsgi.py)
+# Créez l'application Flask (variable importée par wsgi.py)
 app = Flask(__name__)
 
 # Charger le pipeline (modèle entraîné)
@@ -113,7 +113,16 @@ dash_app = dash.Dash(
 
 # Layout du dashboard Dash
 dash_app.layout = dbc.Container([
-    html.H1("Dashboard de prédiction du remboursement de crédit"),
+    # Navbar de navigation pour retourner à la page de prédiction
+    dbc.NavbarSimple(
+        children=[
+            dbc.NavItem(dbc.NavLink("Prédiction", href="/")),
+        ],
+        brand="Dashboard",
+        color="primary",
+        dark=True,
+        className="mb-4"
+    ),
     
     # Ligne 1 : Sélection du client
     dbc.Row([
@@ -152,7 +161,33 @@ dash_app.layout = dbc.Container([
         ], width=6)
     ], className="my-3"),
     
-    # Ligne 4 : Comparaison distribution d'une feature (optionnel)
+    # Ligne 4 : Analyse bivariée entre deux features
+    dbc.Row([
+        dbc.Col([
+            html.H3("Analyse bivariée"),
+            html.Label("Sélectionner la feature X"),
+            dcc.Dropdown(
+                id='feature-x-dropdown',
+                options=[{'label': feature, 'value': feature} for feature in FEATURE_NAMES],
+                value=FEATURE_NAMES[0]
+            )
+        ], width=6),
+        dbc.Col([
+            html.Label("Sélectionner la feature Y"),
+            dcc.Dropdown(
+                id='feature-y-dropdown',
+                options=[{'label': feature, 'value': feature} for feature in FEATURE_NAMES],
+                value=FEATURE_NAMES[1]
+            )
+        ], width=6)
+    ], className="my-3"),
+    dbc.Row([
+        dbc.Col([
+            dcc.Graph(id='bivariate-graph')
+        ])
+    ], className="my-3"),
+    
+    # Ligne 5 : Comparaison distribution d'une feature (optionnel)
     dbc.Row([
         dbc.Col([
             html.H3("Comparaison avec d'autres clients"),
@@ -229,7 +264,6 @@ def update_comparative_graph(selected_feature, client_index):
 )
 def update_gauge(client_index):
     client_prob = df_clients.loc[client_index, 'probability']
-    # Choisir la couleur de la barre de jauge en fonction du seuil
     bar_color = "green" if client_prob < OPTIMAL_THRESHOLD else "red"
     fig = go.Figure(go.Indicator(
         mode="gauge+number+delta",
@@ -259,19 +293,27 @@ def update_gauge(client_index):
     Input('client-dropdown', 'value')
 )
 def update_global_local_graph(client_index):
-    # Récupérer les valeurs SHAP locales pour le client sélectionné
     client_data = df_clients.loc[[client_index]][FEATURE_NAMES]
     shap_values_local = explainer(client_data)
     local_contrib = np.abs(shap_values_local.values[0])
-    
-    # Préparer un DataFrame comparatif
     compare_df = pd.DataFrame({
         'Feature': FEATURE_NAMES,
         'Local Contribution': local_contrib,
         'Global Importance': global_importance
     })
-    
-    # Création d'un graphique groupé
     fig = px.bar(compare_df, x='Feature', y=['Local Contribution', 'Global Importance'],
                  barmode='group', title="Comparaison : Contribution Locale vs Importance Globale")
+    return fig
+
+# Callback pour réaliser une analyse bivariée entre deux features sélectionnées
+@dash_app.callback(
+    Output('bivariate-graph', 'figure'),
+    Input('feature-x-dropdown', 'value'),
+    Input('feature-y-dropdown', 'value')
+)
+def update_bivariate_graph(feature_x, feature_y):
+    # Création d'un nuage de points entre feature_x et feature_y
+    fig = px.scatter(df_clients, x=feature_x, y=feature_y,
+                     title=f"Analyse bivariée : {feature_x} vs {feature_y}",
+                     trendline="ols")
     return fig
