@@ -14,7 +14,6 @@ import plotly.graph_objects as go
 # ----------------------------
 # Partie Flask
 # ----------------------------
-# Créez l'application Flask (variable importée par wsgi.py)
 app = Flask(__name__)
 
 # Charger le pipeline (modèle entraîné)
@@ -125,15 +124,14 @@ dash_app.layout = dbc.Container([
         className="mb-4"
     ),
     
-    # Ligne 1 : Sélection du client
+    # Ligne 1 : Sélection du client avec un label explicite
     dbc.Row([
         dbc.Col([
             html.Label("Sélectionner un client", id="client-dropdown-label"),
             dcc.Dropdown(
                 id='client-dropdown',
                 options=[{'label': f"Client {i}", 'value': i} for i in df_clients.index],
-                value=df_clients.index[0],
-                aria_label="Sélectionner un client"
+                value=df_clients.index[0]
             )
         ], width=4),
     ], className="my-3"),
@@ -148,8 +146,7 @@ dash_app.layout = dbc.Container([
         dbc.Col([
             html.H3("Contributions des Features (SHAP Local)", id="shap-local-title"),
             dcc.Graph(
-                id='shap-graph',
-                aria_label="Graphique montrant la contribution locale de chaque feature pour ce client"
+                id='shap-graph'
             )
         ], width=8)
     ], className="my-3"),
@@ -159,20 +156,18 @@ dash_app.layout = dbc.Container([
         dbc.Col([
             html.H3("Indicateur : Écart par rapport au seuil", id="gauge-title"),
             dcc.Graph(
-                id='gauge-indicator',
-                aria_label="Barre horizontale indiquant la probabilité de non-remboursement du client"
+                id='gauge-indicator'
             )
         ], width=6),
         dbc.Col([
             html.H3("Comparaison des Features : Local vs Global", id="global-local-title"),
             dcc.Graph(
-                id='global-local-graph',
-                aria_label="Graphique comparant la contribution locale des features à leur importance globale"
+                id='global-local-graph'
             )
         ], width=6)
     ], className="my-3"),
     
-    # Ligne 4 : Analyse bivariée entre deux features
+    # Ligne 4 : Analyse bivariée entre deux features avec des labels explicites
     dbc.Row([
         dbc.Col([
             html.H3("Analyse bivariée", id="bivariate-title"),
@@ -180,8 +175,7 @@ dash_app.layout = dbc.Container([
             dcc.Dropdown(
                 id='feature-x-dropdown',
                 options=[{'label': feature, 'value': feature} for feature in FEATURE_NAMES],
-                value=FEATURE_NAMES[0],
-                aria_label="Sélectionner la première feature pour l'analyse bivariée"
+                value=FEATURE_NAMES[0]
             )
         ], width=6),
         dbc.Col([
@@ -189,33 +183,30 @@ dash_app.layout = dbc.Container([
             dcc.Dropdown(
                 id='feature-y-dropdown',
                 options=[{'label': feature, 'value': feature} for feature in FEATURE_NAMES],
-                value=FEATURE_NAMES[1],
-                aria_label="Sélectionner la deuxième feature pour l'analyse bivariée"
+                value=FEATURE_NAMES[1]
             )
         ], width=6)
     ], className="my-3"),
     dbc.Row([
         dbc.Col([
             dcc.Graph(
-                id='bivariate-graph',
-                aria_label="Graphique de nuage de points analysant la relation entre deux features sélectionnées"
+                id='bivariate-graph'
             )
         ])
     ], className="my-3"),
     
-    # Ligne 5 : Comparaison distribution d'une feature (optionnel)
+    # Ligne 5 : Comparaison distribution d'une feature avec un label explicite
     dbc.Row([
         dbc.Col([
             html.H3("Comparaison avec d'autres clients", id="comparative-title"),
+            html.Label("Sélectionner une feature pour comparer sa distribution parmi tous les clients", id="filter-dropdown-label"),
             dcc.Dropdown(
                 id='filter-dropdown',
                 options=[{'label': feature, 'value': feature} for feature in FEATURE_NAMES],
-                value=FEATURE_NAMES[0],
-                aria_label="Sélectionner une feature pour comparer sa distribution parmi tous les clients"
+                value=FEATURE_NAMES[0]
             ),
             dcc.Graph(
-                id='comparative-graph',
-                aria_label="Graphique montrant la distribution de la feature sélectionnée parmi tous les clients"
+                id='comparative-graph'
             )
         ])
     ], className="my-3")
@@ -252,7 +243,6 @@ def update_shap_graph(client_index):
     
     fig = px.bar(shap_df, x='Feature', y='Local Contribution',
                  title="Contribution des features pour ce client")
-    # Ajouter une description textuelle pour les lecteurs d'écran
     fig.update_layout(
         title={'text': "Graphique de contribution locale (SHAP). Les barres indiquent l'impact de chaque feature sur la prédiction.", 'x':0.5}
     )
