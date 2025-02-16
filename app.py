@@ -265,15 +265,15 @@ def update_comparative_graph(selected_feature, client_index):
 def update_gauge(client_index):
     client_prob = df_clients.loc[client_index, 'probability']
     bar_color = "green" if client_prob < OPTIMAL_THRESHOLD else "red"
+    # Création de la jauge
     fig = go.Figure(go.Indicator(
-        mode="gauge+number+delta",
+        mode="gauge+number",
         value=client_prob,
         domain={'x': [0, 1], 'y': [0, 1]},
         title={'text': "Probabilité de non-remboursement"},
-        delta={'reference': OPTIMAL_THRESHOLD, 'increasing': {'color': "red"}, 'decreasing': {'color': "green"}},
         gauge={
-            'axis': {'range': [0, 1]},
-            'bar': {'color': bar_color},
+            'axis': {'range': [0, 1], 'tickmode': 'linear', 'dtick': 0.1},
+            'bar': {'color': bar_color, 'thickness': 0.25},
             'steps': [
                 {'range': [0, OPTIMAL_THRESHOLD], 'color': 'lightgreen'},
                 {'range': [OPTIMAL_THRESHOLD, 1], 'color': 'lightcoral'}
@@ -285,6 +285,27 @@ def update_gauge(client_index):
             }
         }
     ))
+    
+    # Calculer l'angle correspondant à la probabilité.
+    # Pour une jauge semi-circulaire, l'angle varie de 180° (à gauche pour une valeur 0)
+    # à 0° (à droite pour une valeur 1). On calcule donc :
+    angle = (1 - client_prob) * 180  # en degrés
+    angle_rad = np.deg2rad(angle)
+    # Coordonnées du centre de la jauge (0.5, 0.5) et une longueur d'aiguille choisie (ici 0.35)
+    r = 0.35
+    x_tip = 0.5 + r * np.cos(angle_rad)
+    y_tip = 0.5 + r * np.sin(angle_rad)
+    
+    # Ajouter une forme de type "line" pour simuler l'aiguille
+    fig.update_layout(
+        shapes=[dict(
+            type='line',
+            x0=0.5, y0=0.5,
+            x1=x_tip, y1=y_tip,
+            line=dict(color="black", width=4)
+        )],
+        margin=dict(l=20, r=20, t=50, b=20)
+    )
     return fig
 
 # Callback pour comparer la contribution locale du client avec l'importance globale
