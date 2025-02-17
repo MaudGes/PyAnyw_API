@@ -317,6 +317,10 @@ def update_gauge(client_index):
     )
     
     fig.update_layout(
+        title=dict(
+            text="Barre d'indication de la probabilité",
+            y=0.85  # Ajuste cette valeur pour descendre le titre
+        ),
         xaxis=dict(
             range=[0, 1],
             showgrid=False,
@@ -330,9 +334,7 @@ def update_gauge(client_index):
             showticklabels=False
         ),
         margin=dict(l=20, r=20, t=20, b=20),
-        height=150,
-        title="Barre d'indication de la probabilité",
-        y=0.85
+        height=150
     )
     return fig
 
