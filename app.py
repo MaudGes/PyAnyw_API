@@ -117,7 +117,7 @@ dash_app.layout = dbc.Container([
         children=[
             dbc.NavItem(dbc.NavLink("Prédiction", href="/")),
         ],
-        brand="Dashboard – Analyse du remboursement de crédit",
+        brand="Dashboard Crédit",
         brand_href="/dashboard/",
         color="primary",
         dark=True,
@@ -144,7 +144,7 @@ dash_app.layout = dbc.Container([
             html.Div(id='probability-output'),
         ], width=4),
         dbc.Col([
-            html.H3("Contributions des Features (SHAP Local)", id="shap-local-title"),
+            html.H3("Contributions des variables pour le client", id="shap-local-title"),
             dcc.Graph(
                 id='shap-graph'
             )
@@ -160,7 +160,7 @@ dash_app.layout = dbc.Container([
             )
         ], width=6),
         dbc.Col([
-            html.H3("Comparaison des Features : Local vs Global", id="global-local-title"),
+            html.H3("Comparaison des variables : Locale vs Globales", id="global-local-title"),
             dcc.Graph(
                 id='global-local-graph'
             )
@@ -242,9 +242,9 @@ def update_shap_graph(client_index):
     }).sort_values(by='Local Contribution', key=abs, ascending=False)
     
     fig = px.bar(shap_df, x='Feature', y='Local Contribution',
-                 title="Contribution des features pour ce client")
+                 title="Contribution des variables pour ce client")
     fig.update_layout(
-        title={'text': "Graphique de contribution locale (SHAP). Les barres indiquent l'impact de chaque feature sur la prédiction.", 'x':0.5}
+        title={'text': "Les barres indiquent l'impact de chaque feature sur la prédiction.", 'x':0.5}
     )
     return fig
 
@@ -331,7 +331,8 @@ def update_gauge(client_index):
         ),
         margin=dict(l=20, r=20, t=20, b=20),
         height=150,
-        title="Barre d'indication de la probabilité"
+        title="Barre d'indication de la probabilité",
+        y=0.85
     )
     return fig
 
@@ -352,7 +353,7 @@ def update_global_local_graph(client_index):
     fig = px.bar(compare_df, x='Feature', y=['Local Contribution', 'Global Importance'],
                  barmode='group', title="Comparaison : Contribution Locale vs Importance Globale")
     fig.update_layout(
-        title={'text': "Graphique comparatif de la contribution locale (pour ce client) et de l'importance globale des features", 'x':0.5}
+        title={'text': "Graphique comparatif de la contribution locale (pour ce client)<br>et de l'importance globale des features", 'x':0.5}
     )
     return fig
 
