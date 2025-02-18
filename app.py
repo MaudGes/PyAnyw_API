@@ -335,7 +335,7 @@ def update_gauge(client_index):
 
     fig.update_layout(
         title=dict(
-            text="Indicateur : Probabilité de non-remboursement & Seuil 15%",
+            text="Indicateur : Probabilité de non-remboursement",
             y=0.85
         ),
         xaxis=dict(
