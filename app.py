@@ -327,10 +327,10 @@ def update_gauge(client_index):
 
     # Annotation pour le seuil à 15%
     fig.add_annotation(
-        x=0.15, y=0.85,
+        x=0.15, y=0.3,  # Déplace l'annotation en dessous
         text="Seuil 15%",
         showarrow=False,
-        font=dict(size=14, color="blue")
+        font=dict(size=14, color="black")
     )
 
     fig.update_layout(
