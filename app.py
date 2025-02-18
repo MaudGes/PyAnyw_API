@@ -278,11 +278,11 @@ def update_comparative_graph(selected_feature, client_index):
 )
 def update_gauge(client_index):
     client_prob = df_clients.loc[client_index, 'probability']
-    color = "green" if client_prob < OPTIMAL_THRESHOLD else "red"
+    color = "green" if client_prob < 0.15 else "red"
     
     fig = go.Figure()
     
-    # Barre de fond accessible
+    # Barre de fond (grise)
     fig.add_shape(
         type="rect",
         x0=0, x1=1, y0=0.4, y1=0.6,
@@ -291,7 +291,7 @@ def update_gauge(client_index):
         name="Échelle complète"
     )
     
-    # Barre colorée jusqu'à la probabilité du client
+    # Barre colorée représentant la probabilité du client
     fig.add_shape(
         type="rect",
         x0=0, x1=client_prob, y0=0.4, y1=0.6,
@@ -300,7 +300,7 @@ def update_gauge(client_index):
         name="Valeur du client"
     )
     
-    # Ligne verticale (flèche) indiquant la position exacte
+    # Ligne verticale indiquant la position exacte du client
     fig.add_shape(
         type="line",
         x0=client_prob, x1=client_prob,
@@ -308,18 +308,35 @@ def update_gauge(client_index):
         line=dict(color="black", width=4)
     )
     
-    # Annotation textuelle indiquant le pourcentage
+    # Ligne verticale pour le seuil de 15%
+    fig.add_shape(
+        type="line",
+        x0=0.15, x1=0.15,
+        y0=0.3, y1=0.7,
+        line=dict(color="blue", width=3, dash="dash"),
+        name="Seuil 15%"
+    )
+
+    # Annotation pour la valeur du client
     fig.add_annotation(
-        x=client_prob, y=0.7,
+        x=client_prob, y=0.75,
         text=f"{client_prob*100:.1f}%",
         showarrow=False,
         font=dict(size=14, color="black")
     )
-    
+
+    # Annotation pour le seuil à 15%
+    fig.add_annotation(
+        x=0.15, y=0.85,
+        text="Seuil 15%",
+        showarrow=False,
+        font=dict(size=14, color="blue")
+    )
+
     fig.update_layout(
         title=dict(
-            text="Barre d'indication de la probabilité",
-            y=0.85  # Ajuste cette valeur pour descendre le titre
+            text="Indicateur : Probabilité de non-remboursement & Seuil 15%",
+            y=0.85
         ),
         xaxis=dict(
             range=[0, 1],
@@ -336,6 +353,7 @@ def update_gauge(client_index):
         margin=dict(l=20, r=20, t=20, b=20),
         height=150
     )
+
     return fig
 
 # Callback pour comparer la contribution locale du client avec l'importance globale
