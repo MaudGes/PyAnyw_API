@@ -97,10 +97,6 @@ explainer = shap.Explainer(pipeline['model'])
 shap_values_global = explainer(df_clients[FEATURE_NAMES])
 # Calcul de l'importance globale : moyenne des valeurs absolues de SHAP pour chaque feature
 global_importance = np.abs(shap_values_global.values).mean(axis=0)
-global_df = pd.DataFrame({
-    'Feature': FEATURE_NAMES,
-    'Global Importance': global_importance
-})
 
 # Création de l'application Dash en utilisant le serveur Flask
 dash_app = dash.Dash(
@@ -110,13 +106,16 @@ dash_app = dash.Dash(
     external_stylesheets=[dbc.themes.BOOTSTRAP]
 )
 
-# Layout du dashboard Dash avec attributs d’accessibilité
+# Layout du dashboard Dash avec intégration des attributs aria‑label
 dash_app.layout = dbc.Container([
-    # Navbar de navigation avec aria‑label
+    # Navbar de navigation avec un aria‑label appliqué via un wrapper html.Div
     dbc.NavbarSimple(
         children=[
             dbc.NavItem(
-                dbc.NavLink("Prédiction", href="/", **{"aria-label": "Retour à la page de prédiction"})
+                html.Div(
+                    dbc.NavLink("Prédiction", href="/"),
+                    **{"aria-label": "Retour à la page de prédiction"}
+                )
             ),
         ],
         brand="Dashboard Crédit",
@@ -147,8 +146,10 @@ dash_app.layout = dbc.Container([
         ], width=4),
         dbc.Col([
             html.H3("Contributions des variables pour le client", id="shap-local-title"),
-            dcc.Graph(
-                id='shap-graph',
+            html.Div(
+                dcc.Graph(
+                    id='shap-graph'
+                ),
                 **{"aria-label": "Graphique SHAP local montrant la contribution de chaque feature pour le client."}
             )
         ], width=8)
@@ -158,15 +159,19 @@ dash_app.layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.H3("Indicateur : Écart par rapport au seuil", id="gauge-title"),
-            dcc.Graph(
-                id='gauge-indicator',
+            html.Div(
+                dcc.Graph(
+                    id='gauge-indicator'
+                ),
                 **{"aria-label": "Graphique de jauge indiquant la probabilité de non-remboursement par rapport au seuil."}
             )
         ], width=6),
         dbc.Col([
             html.H3("Comparaison des variables : Locale vs Globales", id="global-local-title"),
-            dcc.Graph(
-                id='global-local-graph',
+            html.Div(
+                dcc.Graph(
+                    id='global-local-graph'
+                ),
                 **{"aria-label": "Graphique comparatif montrant la contribution locale par rapport à l'importance globale des features."}
             )
         ], width=6)
@@ -194,8 +199,10 @@ dash_app.layout = dbc.Container([
     ], className="my-3"),
     dbc.Row([
         dbc.Col([
-            dcc.Graph(
-                id='bivariate-graph',
+            html.Div(
+                dcc.Graph(
+                    id='bivariate-graph'
+                ),
                 **{"aria-label": "Graphique d'analyse bivariée affichant la relation entre les deux features sélectionnées."}
             )
         ])
@@ -211,8 +218,10 @@ dash_app.layout = dbc.Container([
                 options=[{'label': feature, 'value': feature} for feature in FEATURE_NAMES],
                 value=FEATURE_NAMES[0]
             ),
-            dcc.Graph(
-                id='comparative-graph',
+            html.Div(
+                dcc.Graph(
+                    id='comparative-graph'
+                ),
                 **{"aria-label": "Graphique de distribution comparant la valeur d'une feature chez le client sélectionné à celle de l'ensemble des clients."}
             )
         ])
@@ -294,8 +303,7 @@ def update_gauge(client_index):
         type="rect",
         x0=0, x1=1, y0=0.4, y1=0.6,
         fillcolor="lightgrey",
-        line=dict(width=0),
-        name="Échelle complète"
+        line=dict(width=0)
     )
     
     # Barre colorée représentant la probabilité du client
@@ -303,8 +311,7 @@ def update_gauge(client_index):
         type="rect",
         x0=0, x1=client_prob, y0=0.4, y1=0.6,
         fillcolor=color,
-        line=dict(width=0),
-        name="Valeur du client"
+        line=dict(width=0)
     )
     
     # Ligne verticale indiquant la position exacte du client
@@ -320,8 +327,7 @@ def update_gauge(client_index):
         type="line",
         x0=0.15, x1=0.15,
         y0=0.3, y1=0.7,
-        line=dict(color="blue", width=3, dash="dash"),
-        name="Seuil 15%"
+        line=dict(color="blue", width=3, dash="dash")
     )
 
     # Annotation pour la valeur du client
@@ -334,7 +340,7 @@ def update_gauge(client_index):
 
     # Annotation pour le seuil à 15%
     fig.add_annotation(
-        x=0.15, y=0.3,  # Déplace l'annotation en dessous
+        x=0.15, y=0.3,
         text="Seuil 15%",
         showarrow=False,
         font=dict(size=14, color="black")
