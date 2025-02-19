@@ -112,10 +112,12 @@ dash_app = dash.Dash(
 
 # Layout du dashboard Dash avec attributs d’accessibilité
 dash_app.layout = dbc.Container([
-    # Navbar de navigation identique
+    # Navbar de navigation avec aria‑label
     dbc.NavbarSimple(
         children=[
-            dbc.NavItem(dbc.NavLink("Prédiction", href="/")),
+            dbc.NavItem(
+                dbc.NavLink("Prédiction", href="/", **{"aria-label": "Retour à la page de prédiction"})
+            ),
         ],
         brand="Dashboard Crédit",
         brand_href="/dashboard/",
@@ -146,7 +148,8 @@ dash_app.layout = dbc.Container([
         dbc.Col([
             html.H3("Contributions des variables pour le client", id="shap-local-title"),
             dcc.Graph(
-                id='shap-graph'
+                id='shap-graph',
+                **{"aria-label": "Graphique SHAP local montrant la contribution de chaque feature pour le client."}
             )
         ], width=8)
     ], className="my-3"),
@@ -156,13 +159,15 @@ dash_app.layout = dbc.Container([
         dbc.Col([
             html.H3("Indicateur : Écart par rapport au seuil", id="gauge-title"),
             dcc.Graph(
-                id='gauge-indicator'
+                id='gauge-indicator',
+                **{"aria-label": "Graphique de jauge indiquant la probabilité de non-remboursement par rapport au seuil."}
             )
         ], width=6),
         dbc.Col([
             html.H3("Comparaison des variables : Locale vs Globales", id="global-local-title"),
             dcc.Graph(
-                id='global-local-graph'
+                id='global-local-graph',
+                **{"aria-label": "Graphique comparatif montrant la contribution locale par rapport à l'importance globale des features."}
             )
         ], width=6)
     ], className="my-3"),
@@ -190,7 +195,8 @@ dash_app.layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             dcc.Graph(
-                id='bivariate-graph'
+                id='bivariate-graph',
+                **{"aria-label": "Graphique d'analyse bivariée affichant la relation entre les deux features sélectionnées."}
             )
         ])
     ], className="my-3"),
@@ -206,7 +212,8 @@ dash_app.layout = dbc.Container([
                 value=FEATURE_NAMES[0]
             ),
             dcc.Graph(
-                id='comparative-graph'
+                id='comparative-graph',
+                **{"aria-label": "Graphique de distribution comparant la valeur d'une feature chez le client sélectionné à celle de l'ensemble des clients."}
             )
         ])
     ], className="my-3")
