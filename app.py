@@ -132,9 +132,19 @@ dash_app.layout = dbc.Container([
             dcc.Dropdown(
                 id='client-dropdown',
                 options=[{'label': f"Client {i}", 'value': i} for i in df_clients.index],
-                value=df_clients.index[0]
-            )
+                value=df_clients.index[0],
+                aria-labelledby="client-dropdown-label"
+            ),
+            html.Div(id='client-selection-output', aria-live='polite', className='sr-only')
         ], width=4),
+    ], className="my-3"),
+
+    dbc.Row([
+        dbc.Col([
+            html.H3("Score et Probabilité"),
+            html.Div(id='score-output'),
+            html.Div(id='probability-output'),
+        ], width=4)
     ], className="my-3"),
     
     # Ligne 2 : Score, probabilité et graphique SHAP local
@@ -167,12 +177,12 @@ dash_app.layout = dbc.Container([
             )
         ], width=6),
         dbc.Col([
-            html.H3("Comparaison des variables : Locale vs Globales", id="global-local-title"),
+            html.H3("Comparaison des variables : Locales vs Globales", id="global-local-title"),
             html.Div(
                 dcc.Graph(
                     id='global-local-graph'
                 ),
-                **{"aria-label": "Graphique comparatif montrant la contribution locale par rapport à l'importance globale des features."}
+                **{"aria-label": "Graphique comparatif montrant la contribution locale des variables par rapport à leur importance globale."}
             )
         ], width=6)
     ], className="my-3"),
@@ -203,7 +213,7 @@ dash_app.layout = dbc.Container([
                 dcc.Graph(
                     id='bivariate-graph'
                 ),
-                **{"aria-label": "Graphique d'analyse bivariée affichant la relation entre les deux features sélectionnées."}
+                **{"aria-label": "Graphique d'analyse bivariée affichant la relation entre les deux variables sélectionnées."}
             )
         ])
     ], className="my-3"),
@@ -212,7 +222,7 @@ dash_app.layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.H3("Comparaison avec d'autres clients", id="comparative-title"),
-            html.Label("Sélectionner une feature pour comparer sa distribution parmi tous les clients", id="filter-dropdown-label"),
+            html.Label("Sélectionner une variable pour comparer sa distribution parmi tous les clients", id="filter-dropdown-label"),
             dcc.Dropdown(
                 id='filter-dropdown',
                 options=[{'label': feature, 'value': feature} for feature in FEATURE_NAMES],
@@ -222,7 +232,7 @@ dash_app.layout = dbc.Container([
                 dcc.Graph(
                     id='comparative-graph'
                 ),
-                **{"aria-label": "Graphique de distribution comparant la valeur d'une feature chez le client sélectionné à celle de l'ensemble des clients."}
+                **{"aria-label": "Graphique de distribution comparant la valeur d'une variable chez le client sélectionné à celle de l'ensemble des clients."}
             )
         ])
     ], className="my-3")
@@ -232,6 +242,7 @@ dash_app.layout = dbc.Container([
 @dash_app.callback(
     Output('score-output', 'children'),
     Output('probability-output', 'children'),
+    Output('client-selection-output', 'children'),
     Input('client-dropdown', 'value')
 )
 def update_score(client_index):
@@ -239,9 +250,15 @@ def update_score(client_index):
     prob = client_data['probability']
     score = client_data['score']
     interpretation = "Client à risque élevé" if score == 1 else "Client à faible risque"
+    voiceover_text = (
+        f"Client {client_index} sélectionné. "
+        f"Probabilité de non-remboursement: {prob:.2%}. "
+        f"Risque: {interpretation}."
+    )
     return (
         f"Score: {score} - {interpretation}",
-        f"Probabilité de non-remboursement: {prob:.2%}"
+        f"Probabilité de non-remboursement: {prob:.2%}",
+        voiceover_text
     )
 
 # Callback pour mettre à jour le graphique SHAP local pour le client sélectionné

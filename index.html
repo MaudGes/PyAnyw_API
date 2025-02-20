@@ -6,18 +6,30 @@
   <title>Credit Repayment Prediction</title>
   <!-- Lien vers Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
+    }
+  </style>
 </head>
 <body>
-  <!-- Barre de navigation -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">Credit App</a>
+  <!-- Barre de navigation avec aria‑label pour décrire sa fonction -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary" aria-label="Navigation principale de l'application">
+    <a class="navbar-brand" href="#" aria-label="Nom de l'application : Credit App">Credit App</a>
     <div class="collapse navbar-collapse">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item {% if request.path == '/' %}active{% endif %}">
-          <a class="nav-link" href="/">Prédiction</a>
+          <a class="nav-link" href="/" aria-label="Retour à la page de prédiction">Prédiction</a>
         </li>
         <li class="nav-item {% if request.path == '/dashboard/' %}active{% endif %}">
-          <a class="nav-link" href="/dashboard/">Dashboard</a>
+          <a class="nav-link" href="/dashboard/" aria-label="Accéder au dashboard de l'application">Dashboard</a>
         </li>
       </ul>
     </div>
@@ -63,14 +75,14 @@
         <label for="FLAG_DOCUMENT_3">Flag Document 3:</label>
         <input type="number" class="form-control" id="FLAG_DOCUMENT_3" name="FLAG_DOCUMENT_3" required>
       </div>
-      <button type="submit" class="btn btn-primary">Predict</button>
+      <button type="submit" class="btn btn-primary" aria-label="Valider les données et lancer la prédiction">Predict</button>
     </form>
 
     {% if probability is not none %}
       <div class="mt-4">
         <h2>Prediction Results:</h2>
-        <p><strong>Client probability to not repay:</strong> {{ probability | round(5) }}</p>
-        <p><strong>Final Decision:</strong>
+        <p aria-label="Probabilité de non-remboursement"><strong>Client probability to not repay:</strong> {{ probability | round(5) }}</p>
+        <p aria-label="Décision finale"><strong>Final Decision:</strong>
           {% if prediction == 1 %}
             Will Default (at risk)
           {% else %}
@@ -81,7 +93,7 @@
     {% endif %}
 
     {% if error %}
-      <div class="mt-4 alert alert-danger">
+      <div class="mt-4 alert alert-danger" aria-label="Message d'erreur">
         <strong>Error:</strong> {{ error }}
       </div>
     {% endif %}
