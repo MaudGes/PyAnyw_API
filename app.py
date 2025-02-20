@@ -135,7 +135,11 @@ dash_app.layout = dbc.Container([
                 value=df_clients.index[0],
                 **{'aria-labelledby': 'client-dropdown-label'}
             ),
-            html.Div(id='client-selection-output', aria-live='polite', className='sr-only')
+            html.Div(
+                id='client-selection-output',
+                className='sr-only',
+                **{'aria-live': 'polite'}
+            )
         ], width=4),
     ], className="my-3"),
 
