@@ -172,7 +172,7 @@ dash_app.layout = dbc.Container([
                 dcc.Graph(
                     id='global-local-graph'
                 ),
-                **{"aria-label": "Graphique comparatif montrant la contribution locale par rapport à l'importance globale des features."}
+                **{"aria-label": "Graphique comparatif montrant la contribution locale par rapport à l'importance globale des variables."}
             )
         ], width=6)
     ], className="my-3"),
@@ -181,7 +181,7 @@ dash_app.layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.H3("Analyse bivariée", id="bivariate-title"),
-            html.Label("Sélectionner la feature X", id="feature-x-label"),
+            html.Label("Sélectionner la variable X", id="feature-x-label"),
             dcc.Dropdown(
                 id='feature-x-dropdown',
                 options=[{'label': feature, 'value': feature} for feature in FEATURE_NAMES],
@@ -189,7 +189,7 @@ dash_app.layout = dbc.Container([
             )
         ], width=6),
         dbc.Col([
-            html.Label("Sélectionner la feature Y", id="feature-y-label"),
+            html.Label("Sélectionner la variable Y", id="feature-y-label"),
             dcc.Dropdown(
                 id='feature-y-dropdown',
                 options=[{'label': feature, 'value': feature} for feature in FEATURE_NAMES],
@@ -203,7 +203,7 @@ dash_app.layout = dbc.Container([
                 dcc.Graph(
                     id='bivariate-graph'
                 ),
-                **{"aria-label": "Graphique d'analyse bivariée affichant la relation entre les deux features sélectionnées."}
+                **{"aria-label": "Graphique d'analyse bivariée affichant la relation entre les deux variables sélectionnées."}
             )
         ])
     ], className="my-3"),
@@ -212,7 +212,7 @@ dash_app.layout = dbc.Container([
     dbc.Row([
         dbc.Col([
             html.H3("Comparaison avec d'autres clients", id="comparative-title"),
-            html.Label("Sélectionner une feature pour comparer sa distribution parmi tous les clients", id="filter-dropdown-label"),
+            html.Label("Sélectionner une variable pour comparer sa distribution parmi tous les clients", id="filter-dropdown-label"),
             dcc.Dropdown(
                 id='filter-dropdown',
                 options=[{'label': feature, 'value': feature} for feature in FEATURE_NAMES],
@@ -222,7 +222,7 @@ dash_app.layout = dbc.Container([
                 dcc.Graph(
                     id='comparative-graph'
                 ),
-                **{"aria-label": "Graphique de distribution comparant la valeur d'une feature chez le client sélectionné à celle de l'ensemble des clients."}
+                **{"aria-label": "Graphique de distribution comparant la valeur d'une variable chez le client sélectionné à celle de l'ensemble des clients."}
             )
         ])
     ], className="my-3")
